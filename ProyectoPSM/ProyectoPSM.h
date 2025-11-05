@@ -23,7 +23,7 @@ public:
     ~ProyectoPSM();
 
 private slots:
-    void iniciarGrabacion();
+    void iniciarDetenerGrabacion();
     void detenerGrabacion();
     void capturarImagen();
     void actualizarFrame();

@@ -6,13 +6,12 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 {
     ui->setupUi(this);
 
-    // Inicializamos los combos y el temporizador
+	// Inicializar combos
     inicializarCombos();
     temporizador = new QTimer(this);
 
-    // Conectamos señales y slots
-    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarGrabacion()));
-    connect(ui->btnStop, SIGNAL(clicked()), this, SLOT(detenerGrabacion()));
+    // Conectar señales y slots
+    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
     connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
     connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
 
@@ -30,24 +29,20 @@ ProyectoPSM::~ProyectoPSM()
 
 void ProyectoPSM::inicializarCombos()
 {
-    // Códigos (01..20)
-    for (int i = 1; i <= 20; i++)
-        ui->comboCodigo->addItem(QString("%1").arg(i, 2, 10, QChar('0')));
+    QStringList codigos = { "01","02","03" };
+    ui->comboCodigo->addItems(codigos);
 
-    // Azimuth (000,045,...,315)
-    QStringList az = { "000","045","090","135","180","225","270","315" };
-    ui->comboAzimuth->addItems(az);
+    QStringList azimuth = { "000","045","090","135","180","225","270","315" };
+    ui->comboAzimuth->addItems(azimuth);
 
-    // Elevación (010,020,...,090)
-    for (int e = 10; e <= 90; e += 10)
-        ui->comboElev->addItem(QString("%1").arg(e, 3, 10, QChar('0')));
+	QStringList elevacion = { "000","030","060","090" };
+    ui->comboElev->addItems(elevacion);
 
-    // Secuencia (001..999)
-    for (int s = 1; s <= 20; s++)
-        ui->comboSeq->addItem(QString("%1").arg(s, 3, 10, QChar('0')));
+	QStringList secuencias = { "001","002","003","004","005" };
+    ui->comboSeq->addItems(secuencias);
 }
 
-void ProyectoPSM::iniciarGrabacion()
+void ProyectoPSM::iniciarDetenerGrabacion()
 {
     // Abrimos cámara
     if (!camara.open(0)) {
@@ -55,11 +50,21 @@ void ProyectoPSM::iniciarGrabacion()
         return;
     }
 
-    temporizador->start(30);  // 30 ms ~ 33 fps
+    if (temporizador->isActive()) {
+        detenerGrabacion();
+    }
+    else {
+        ui->btnStart->setStyleSheet("background-color: #E05334");
+		ui->btnStart->setText("Parar");
+        temporizador->start(30);  // 30 ms ~ 33 fps
+    }
+    
 }
 
 void ProyectoPSM::detenerGrabacion()
 {
+    ui->btnStart->setStyleSheet("background-color: white");
+    ui->btnStart->setText("Iniciar");
     temporizador->stop();
     if (camara.isOpened())
         camara.release();
