@@ -4,11 +4,9 @@
 #include <QMainWindow>
 #include <QTimer>
 #include <QImage>
-#include <QPixmap>
-#include <QDir>
 #include <QMessageBox>
-#include <opencv2/opencv.hpp>
 #include "ui_ProyectoPSM.h" 
+#include <VideoAcquisition.h>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ProyectoPSM; }
@@ -24,19 +22,21 @@ public:
 
 private slots:
     void iniciarDetenerGrabacion();
-    void detenerGrabacion();
-    void capturarImagen();
     void actualizarFrame();
+    void capturarImagen();
 
 private:
     Ui::ProyectoPSM* ui;
-    cv::VideoCapture camara;
+    CVideoAcquisition camara;
     QTimer* temporizador;
-    cv::Mat frameActual;
+    QString generarNombreArchivo();
+    Mat frameActual;
+    bool Recording;
 
     void inicializarCombos();
-    QString generarNombreArchivo();
-    static QImage matToQImage(const cv::Mat& mat);
+    static QImage matToQImage(const Mat& mat);
+    
+    
 };
 
 #endif // PROYECTOPSM_H

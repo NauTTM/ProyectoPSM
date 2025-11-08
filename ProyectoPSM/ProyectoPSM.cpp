@@ -1,6 +1,7 @@
 #include "ProyectoPSM.h"
 #include "ui_ProyectoPSM.h"
 
+
 ProyectoPSM::ProyectoPSM(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::ProyectoPSM)
 {
@@ -9,11 +10,14 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 	// Inicializar combos
     inicializarCombos();
     temporizador = new QTimer(this);
+    Recording = false;
 
     // Conectar señales y slots
     connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
-    connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
+    connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
     connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
+    connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
+    
 
     // Crear carpeta dataset si no existe
     QDir dir;
@@ -22,8 +26,7 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 
 ProyectoPSM::~ProyectoPSM()
 {
-    if (camara.isOpened())
-        camara.release();
+    camara.~CVideoAcquisition();
     delete ui;
 }
 
@@ -44,35 +47,32 @@ void ProyectoPSM::inicializarCombos()
 
 void ProyectoPSM::iniciarDetenerGrabacion()
 {
-    // Abrimos cámara
-    if (!camara.open(0)) {
+    if (!camara.CameraOK) {
         QMessageBox::warning(this, "Error", "No se pudo abrir la cámara.");
         return;
     }
 
-    if (temporizador->isActive()) {
-        detenerGrabacion();
+    if (!Recording) {
+        ui->btnStart->setStyleSheet("background-color: #E05334");
+        ui->btnStart->setText("Parar");
+        camara.SetCameraAutoExposure();
+		camara.StartStopCapture(true);
+        temporizador->start(30);            // 30 ms ~ 33 fps
+		Recording = true;
     }
     else {
-        ui->btnStart->setStyleSheet("background-color: #E05334");
-		ui->btnStart->setText("Parar");
-        temporizador->start(30);  // 30 ms ~ 33 fps
+        ui->btnStart->setStyleSheet("background-color: white");
+        ui->btnStart->setText("Iniciar");
+        camara.StartStopCapture(false);
+        temporizador->stop();
+		Recording = false;
     }
-    
-}
-
-void ProyectoPSM::detenerGrabacion()
-{
-    ui->btnStart->setStyleSheet("background-color: white");
-    ui->btnStart->setText("Iniciar");
-    temporizador->stop();
-    if (camara.isOpened())
-        camara.release();
 }
 
 void ProyectoPSM::actualizarFrame()
 {
-    camara >> frameActual;
+	frameActual = camara.GetImage();
+
     if (frameActual.empty()) return;
 
     // Convertimos a QImage para mostrar
@@ -89,7 +89,7 @@ void ProyectoPSM::capturarImagen()
     }
 
     QString nombre = generarNombreArchivo();
-    cv::imwrite(nombre.toStdString(), frameActual);
+    imwrite(nombre.toStdString(), frameActual);
     QMessageBox::information(this, "Imagen guardada", nombre);
 }
 
@@ -102,13 +102,15 @@ QString ProyectoPSM::generarNombreArchivo()
     return QString("dataset/%1_%2_%3_%4.png").arg(codigo, az, el, seq);
 }
 
-QImage ProyectoPSM::matToQImage(const cv::Mat& mat)
+QImage ProyectoPSM::matToQImage(const Mat& mat)
 {
+    // Si la imagen es a color
     if (mat.type() == CV_8UC3) {
-        cv::Mat rgb;
-        cv::cvtColor(mat, rgb, cv::COLOR_BGR2RGB);
+        Mat rgb;
+        cvtColor(mat, rgb, COLOR_BGR2RGB);
         return QImage(rgb.data, rgb.cols, rgb.rows, rgb.step, QImage::Format_RGB888).copy();
     }
+    // Si es a escala de grises
     else if (mat.type() == CV_8UC1) {
         return QImage(mat.data, mat.cols, mat.rows, mat.step, QImage::Format_Grayscale8).copy();
     }
