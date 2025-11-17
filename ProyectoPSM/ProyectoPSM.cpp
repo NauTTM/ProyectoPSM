@@ -90,7 +90,7 @@ void ProyectoPSM::capturarImagen()
 
     QString nombre = generarNombreArchivo();
     imwrite(nombre.toStdString(), frameActual);
-    QMessageBox::information(this, "Imagen guardada", nombre);
+    //QMessageBox::information(this, "Imagen guardada", nombre);
 }
 
 QString ProyectoPSM::generarNombreArchivo()
