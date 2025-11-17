@@ -38,7 +38,7 @@ void ProyectoPSM::inicializarCombos()
     QStringList azimuth = { "000","045","090","135","180","225","270","315" };
     ui->comboAzimuth->addItems(azimuth);
 
-	QStringList elevacion = { "000","030","060","090" };
+	QStringList elevacion = { "010","040","070","090" };
     ui->comboElev->addItems(elevacion);
 
 	QStringList secuencias = { "001","002","003","004","005" };
@@ -99,7 +99,7 @@ QString ProyectoPSM::generarNombreArchivo()
     QString az = ui->comboAzimuth->currentText();
     QString el = ui->comboElev->currentText();
     QString seq = ui->comboSeq->currentText();
-    return QString("dataset/%1_%2_%3_%4.png").arg(codigo, az, el, seq);
+    return QString("dataset/%1_%2_%3_%4.jpg").arg(codigo, az, el, seq);
 }
 
 QImage ProyectoPSM::matToQImage(const Mat& mat)
