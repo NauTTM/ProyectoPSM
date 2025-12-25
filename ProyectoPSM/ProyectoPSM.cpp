@@ -6,22 +6,23 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::ProyectoPSM)
 {
     ui->setupUi(this);
-
+    //cv::Mat img = cv::imread("pruebas/01_000_10_001_norm_01.png");
 	// Inicializar combos
-    inicializarCombos();
-    temporizador = new QTimer(this);
-    Recording = false;
+    //inicializarCombos();
+    //temporizador = new QTimer(this);
+    //Recording = false;
+	extraccion.listaCaracteristicas();
+    //// Conectar señales y slots
+    //connect(extraccion, SIGNAL(listaCaracteristicas()), this, SLOT(extraerCaracteristicas()));
+    //connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
+    //connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
+    //connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
+    //connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
+    //
 
-    // Conectar señales y slots
-    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
-    connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
-    connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
-    connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
-    
-
-    // Crear carpeta dataset si no existe
-    QDir dir;
-    if (!dir.exists("dataset")) dir.mkdir("dataset");
+    //// Crear carpeta dataset si no existe
+    //QDir dir;
+    //if (!dir.exists("dataset")) dir.mkdir("dataset");
 }
 
 ProyectoPSM::~ProyectoPSM()
@@ -117,4 +118,8 @@ QImage ProyectoPSM::matToQImage(const Mat& mat)
     else {
         return QImage();
     }
+}
+
+void ProyectoPSM::extraerCaracteristicas(std::vector<double> props) {
+    
 }

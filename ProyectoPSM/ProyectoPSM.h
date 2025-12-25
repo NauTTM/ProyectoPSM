@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include "ui_ProyectoPSM.h" 
 #include <VideoAcquisition.h>
+#include <ExtraccionCaracteristicas.h>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ProyectoPSM; }
@@ -24,6 +26,7 @@ private slots:
     void iniciarDetenerGrabacion();
     void actualizarFrame();
     void capturarImagen();
+	void extraerCaracteristicas(std::vector<double> props);
 
 private:
     Ui::ProyectoPSM* ui;
@@ -36,6 +39,7 @@ private:
     void inicializarCombos();
     static QImage matToQImage(const Mat& mat);
     
+	ExtraccionCaracteristicas extraccion;
     
 };
 
