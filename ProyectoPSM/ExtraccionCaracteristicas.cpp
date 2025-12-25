@@ -9,12 +9,11 @@ ExtraccionCaracteristicas::~ExtraccionCaracteristicas(void) {
 
 void ExtraccionCaracteristicas::listaCaracteristicas() {
 
-	cv::Mat ImagenSegmentadaColor = cv::imread("pruebas/01_000_10_001.jpg_obj.png");
 	cv::Mat ImagenSegmentadaColorTamanoAjustado = cv::imread("pruebas/01_000_10_001_norm_01.png");
 
 	VectorCaracteristicas props{};
-	props.rgb = obtenerMedianaMediaRGB(ImagenSegmentadaColor);
-	props.hu = obtenerMomentosHu(ImagenSegmentadaColor);
+	props.rgb = obtenerMedianaMediaRGB(ImagenSegmentadaColorTamanoAjustado);
+	props.hu = obtenerMomentosHu(ImagenSegmentadaColorTamanoAjustado);
 	props.props = obtenerPropiedadesImagen(ImagenSegmentadaColorTamanoAjustado);
 }
 

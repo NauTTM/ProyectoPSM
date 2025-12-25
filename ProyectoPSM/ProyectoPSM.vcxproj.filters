@@ -46,12 +46,18 @@
     <ClCompile Include="ExtraccionCaracteristicas.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Segmentacion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="VideoAcquisition.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ExtraccionCaracteristicas.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Segmentacion.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
