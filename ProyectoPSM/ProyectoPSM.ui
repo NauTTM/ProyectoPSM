@@ -23,7 +23,7 @@
       <height>371</height>
      </rect>
     </property>
-    <widget class="QLabel" name="labelPreview">
+    <widget class="QLabel" name="capturarImagen">
      <property name="geometry">
       <rect>
        <x>0</x>
@@ -39,164 +39,6 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QLabel" name="label_5">
-     <property name="geometry">
-      <rect>
-       <x>355</x>
-       <y>198</y>
-       <width>10</width>
-       <height>10</height>
-      </rect>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(170, 0, 0);
-border-radius:5px;
-</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-    </widget>
-   </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>180</x>
-      <y>510</y>
-      <width>401</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Calibri</family>
-      <pointsize>11</pointsize>
-     </font>
-    </property>
-    <layout class="QGridLayout" name="gridSelectores">
-     <item row="1" column="3">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(0, 0, 127);</string>
-       </property>
-       <property name="text">
-        <string>Secuencia</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="comboAzimuth">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="3">
-      <widget class="QComboBox" name="comboSeq">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QComboBox" name="comboCodigo">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(0, 0, 127);</string>
-       </property>
-       <property name="text">
-        <string>Azimut</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="label_3">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(0, 0, 127);</string>
-       </property>
-       <property name="text">
-        <string>Elevación</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QComboBox" name="comboElev">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>11</pointsize>
-        </font>
-       </property>
-       <property name="styleSheet">
-        <string notr="true">color: rgb(0, 0, 127);</string>
-       </property>
-       <property name="text">
-        <string>Código</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignmentFlag::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </widget>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -253,6 +95,22 @@ border-radius:5px;
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="ImagenSegmentada">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>420</y>
+      <width>171</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">

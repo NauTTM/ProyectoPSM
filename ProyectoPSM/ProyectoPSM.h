@@ -12,6 +12,7 @@
 #include <Segmentacion.h>
 
 using namespace cv;
+using namespace Qt;
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ProyectoPSM; }
@@ -26,25 +27,27 @@ public:
     ~ProyectoPSM();
 
 private slots:
-    //void iniciarDetenerGrabacion();
-   /* void actualizarFrame();
+    void iniciarDetenerGrabacion();
+    void actualizarFrame();
     void capturarImagen();
-	void extraerCaracteristicas(std::vector<double> props);*/
+
+signals:
+    void enviarFrame(const Mat& frame);
 
 private:
     Ui::ProyectoPSM* ui;
-    /*CVideoAcquisition camara;
-    QTimer* temporizador;*/
-  /*  QString generarNombreArchivo();*/
-    /*Mat frameActual;
-    bool Recording;*/
-
-   /* void inicializarCombos();*/
+    CVideoAcquisition camara;
+    QTimer* temporizador;
+    QString generarNombreArchivo();
+    Mat frameActual;
+    bool Recording;
+    void MostrarImagenSegmentada(const Mat& img1, const vector<vector<Point>>& Bordes);
     static QImage matToQImage(const Mat& mat);
-    
-	ExtraccionCaracteristicas extraccion;
-	Segmentacion segmentacion;
-    
+	Segmentacion *segmentacion;
+    QThread *threadSegmentacion;
+	int ContadorFrames;
+	vector<vector<Point>> BordesActuales;
+
 };
 
 #endif // PROYECTOPSM_H

@@ -15,19 +15,23 @@ public:
 
 	//destructor
 	~Segmentacion();
-	Mat BalanceBlancos(Mat Imagen);
 	struct ObjetosSegmentados {
 		vector<Mat> imagenesColor; // I_norm_all
 		vector<Mat> mascarasBin;   // BW_norm_all
 	};
-
-
-	vector<Mat> AumentoSaturacion(Mat I_wb);
-	vector<Mat> CorreccionIluminacion(vector<Mat> hsv_channels);
-	Mat SegmentacionImagen(vector<Mat> hsv_channels);
-	Mat FiltrarObjetoLego(Mat mask);
-	ObjetosSegmentados RecorteAjusteImagen(vector<Mat> hsv_channels, Mat BW);
-
+	Mat RedimensionarImagen(const Mat& Imagen);
+	Mat BalanceBlancos(const Mat& Imagen);
+	vector<Mat> AumentoSaturacion(const Mat& I_wb);
+	vector<Mat> CorreccionIluminacion(const vector<Mat> &hsv_channels);
+	Mat SegmentacionImagen(const vector<Mat> &hsv_channels);
+	Mat FiltrarObjetoLego(const Mat& mask);
+	ObjetosSegmentados RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
+	vector<vector<Point>> MostrarBordes(const Mat& bw);
 	
+
+public slots:
+	void SegmentarImagen(const Mat& Imagen);
+signals:
+	void SegmentacionCompletada(const Mat& Imagen, const vector<vector<Point>>& Bordes);
 };
 
