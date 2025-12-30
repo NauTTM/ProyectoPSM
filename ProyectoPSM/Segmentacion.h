@@ -19,7 +19,6 @@ public:
 		vector<Mat> imagenesColor; // I_norm_all
 		vector<Mat> mascarasBin;   // BW_norm_all
 	};
-	Mat RedimensionarImagen(const Mat& Imagen);
 	Mat BalanceBlancos(const Mat& Imagen);
 	vector<Mat> AumentoSaturacion(const Mat& I_wb);
 	vector<Mat> CorreccionIluminacion(const vector<Mat> &hsv_channels);
@@ -34,4 +33,3 @@ public slots:
 signals:
 	void SegmentacionCompletada(const Mat& Imagen, const vector<vector<Point>>& Bordes);
 };
-
