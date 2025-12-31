@@ -3,6 +3,9 @@
 #include <QtCore>
 #include "opencv2/opencv.hpp"
 
+using namespace cv;
+using namespace std;
+
 class ExtraccionCaracteristicas : public QThread {
 	Q_OBJECT
 
@@ -38,12 +41,15 @@ public:
 	ExtraccionCaracteristicas();
 	~ExtraccionCaracteristicas(void);
  
+private:
+	RGBResult obtenerMedianaMediaRGB(const Mat& ImagenSegmentadaColor);
+	MomentosHu obtenerMomentosHu(const Mat& BW);
+	ImagenProps obtenerPropiedadesImagen(const Mat& BW);
+
 public slots:
-	RGBResult obtenerMedianaMediaRGB(const cv::Mat& ImagenSegmentadaColor);
-	MomentosHu obtenerMomentosHu(const cv::Mat& ImagenSegmentada);
-	ImagenProps obtenerPropiedadesImagen(const cv::Mat& ImagenSegmentadaColorTamanoAjustado);
-	void listaCaracteristicas();
+	void ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
 
-
+signals:
+	void ListaCaracterisiticas(const VectorCaracteristicas& caracteristicas);
 	
 };

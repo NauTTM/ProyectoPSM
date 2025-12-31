@@ -6,15 +6,19 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::ProyectoPSM)
 {
     ui->setupUi(this);
-    Mat img = imread("dataset/01_000_10_001.jpg");
+    //Mat img = imread("dataset/01_000_10_001.jpg");
 
     temporizador = new QTimer(this);
     Recording = false;
     threadSegmentacion = new QThread(this);
+    extraccionThread = new QThread(this);
 	segmentacion = new Segmentacion();
+	extraccionCaracteristicas = new ExtraccionCaracteristicas();
     // mover el trabajador al hilo
     segmentacion->moveToThread(threadSegmentacion);
+	extraccionCaracteristicas->moveToThread(extraccionThread);
     threadSegmentacion->start();
+	extraccionThread->start();
 	ContadorFrames = 0;
     
     // Conectar señales y slots
@@ -23,9 +27,9 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
     connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
     connect(this, &ProyectoPSM::enviarFrame, segmentacion, &Segmentacion::SegmentarImagen,QueuedConnection);
-	connect(segmentacion, &Segmentacion::SegmentacionCompletada, this, &ProyectoPSM::MostrarImagenSegmentada);
+	connect(segmentacion, &Segmentacion::SegmentacionCompletada, this, &ProyectoPSM::MostrarImagenSegmentada); // eliminar linea cuando proceda
+    connect(segmentacion, &Segmentacion::SegmentacionCompletada, extraccionCaracteristicas, &ExtraccionCaracteristicas::ExtraerCaracteristicasImagen, Qt::QueuedConnection);
 
-    
     // Crear carpeta dataset si no existe
     QDir dir;
     if (!dir.exists("dataset")) dir.mkdir("dataset");
@@ -38,6 +42,7 @@ ProyectoPSM::~ProyectoPSM()
     camara.~CVideoAcquisition();
     temporizador->stop();
     threadSegmentacion->deleteLater();
+	extraccionThread->deleteLater();
     delete ui;
 }
 

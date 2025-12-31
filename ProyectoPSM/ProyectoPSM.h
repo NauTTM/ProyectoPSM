@@ -8,8 +8,8 @@
 #include "opencv2/opencv.hpp"
 #include "ui_ProyectoPSM.h" 
 #include <VideoAcquisition.h>
-#include <ExtraccionCaracteristicas.h>
 #include <Segmentacion.h>
+#include <ExtraccionCaracteristicas.h>
 
 using namespace cv;
 using namespace Qt;
@@ -47,7 +47,9 @@ private:
     QThread *threadSegmentacion;
 	int ContadorFrames;
 	vector<vector<Point>> BordesActuales;
-
+	
+    ExtraccionCaracteristicas *extraccionCaracteristicas;
+	QThread *extraccionThread;
 };
 
 #endif // PROYECTOPSM_H
