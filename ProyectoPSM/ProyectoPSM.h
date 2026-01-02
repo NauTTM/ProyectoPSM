@@ -10,6 +10,8 @@
 #include <VideoAcquisition.h>
 #include <Segmentacion.h>
 #include <ExtraccionCaracteristicas.h>
+#include <Clasificador.h>
+#include <ClasificacionImagen.h>
 
 using namespace cv;
 using namespace Qt;
@@ -50,6 +52,9 @@ private:
 	
     ExtraccionCaracteristicas *extraccionCaracteristicas;
 	QThread *extraccionThread;
+
+	Clasificador* clasificador;
+	ClasificacionImagen* clasificacionImagen;
 };
 
 #endif // PROYECTOPSM_H

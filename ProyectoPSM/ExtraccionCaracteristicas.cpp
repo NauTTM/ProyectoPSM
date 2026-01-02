@@ -7,7 +7,60 @@ ExtraccionCaracteristicas::ExtraccionCaracteristicas() {
 ExtraccionCaracteristicas::~ExtraccionCaracteristicas(void) {
 }
 
-void ExtraccionCaracteristicas::ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado) {
+// Esta funcion es solo para extraer las caracteristicas de todas las imagenes para el clasificador
+void ExtraccionCaracteristicas::ExtraerXyGClasificacion() {
+	vector<vector<double>> X;
+	vector<double> G;
+	QDir directory("results/");
+
+	QStringList filters;
+	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
+	QStringList files = directory.entryList(filters, QDir::Files);
+
+	for (int i = 0; i < files.size(); ++i) {
+		QString fileName = files[i];
+		int numero = fileName.section('_', 0, 0).toInt();
+
+		Mat I = imread(directory.absoluteFilePath(fileName).toStdString());
+		
+		VectorCaracteristicas props = ExtraerCaracteristicasImagen(I);
+		vector<double> caracteristicas = {
+			props.rgb.R_mediana,
+			props.rgb.G_mediana,
+			props.rgb.B_mediana,
+			props.rgb.R_media,
+			props.rgb.G_media,
+			props.rgb.B_media,
+			props.hu.hu1,
+			props.hu.hu2,
+			props.hu.hu3,
+			props.props.area,
+			props.props.circularidad,
+			props.props.perimetro
+		};
+
+		X.push_back(caracteristicas);
+		G.push_back(numero);
+	}
+
+	// Guardar X y G en archivos CSV
+	ofstream file("X.csv");
+	for (const auto& fila : X) {
+		for (size_t i = 0; i < fila.size(); ++i) {
+			file << fila[i] << (i == fila.size() - 1 ? "" : ",");
+		}
+		file << "\n";
+	}
+	file.close();
+	ofstream fileG("G.csv");
+	for (const auto& valor : G) {
+		fileG << valor << "\n"; // Un valor por línea
+	}
+	fileG.close();
+}
+
+ExtraccionCaracteristicas::VectorCaracteristicas ExtraccionCaracteristicas::ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado) {
+
 
 	//cv::Mat ImagenSegmentadaColorTamanoAjustado = cv::imread("pruebas/01_000_10_001_norm_01.png");
 
@@ -24,7 +77,7 @@ void ExtraccionCaracteristicas::ExtraerCaracteristicasImagen(const Mat& ImagenSe
 	props.rgb = obtenerMedianaMediaRGB(ImagenSegmentadaColorTamanoAjustado);
 	props.hu = obtenerMomentosHu(bw);
 	props.props = obtenerPropiedadesImagen(bw);
-
+	return props;
 	//emit ListaCaracterisiticas(props);
 }
 

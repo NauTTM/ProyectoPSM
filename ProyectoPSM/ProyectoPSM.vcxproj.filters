@@ -46,6 +46,12 @@
     <ClCompile Include="Segmentacion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Clasificador.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClasificacionImagen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="VideoAcquisition.h">
@@ -60,5 +66,15 @@
     <QtMoc Include="ProyectoPSM.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="Clasificador.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ClasificacionImagen.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="datos\G.csv" />
+    <None Include="datos\X.csv" />
   </ItemGroup>
 </Project>

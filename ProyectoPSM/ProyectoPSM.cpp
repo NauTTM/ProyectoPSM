@@ -20,16 +20,32 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     threadSegmentacion->start();
 	extraccionThread->start();
 	ContadorFrames = 0;
-    
-    // Conectar señales y slots
-    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
-    connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
-    connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
-    connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
-    connect(this, &ProyectoPSM::enviarFrame, segmentacion, &Segmentacion::SegmentarImagen,QueuedConnection);
-	connect(segmentacion, &Segmentacion::SegmentacionCompletada, this, &ProyectoPSM::MostrarImagenSegmentada); // eliminar linea cuando proceda
-    connect(segmentacion, &Segmentacion::SegmentacionCompletada, extraccionCaracteristicas, &ExtraccionCaracteristicas::ExtraerCaracteristicasImagen, Qt::QueuedConnection);
 
+    // Conectar señales y slots
+ //   connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
+ //   connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
+ //   connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
+ //   connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
+ //   connect(this, &ProyectoPSM::enviarFrame, segmentacion, &Segmentacion::SegmentarImagen,QueuedConnection);
+	//connect(segmentacion, &Segmentacion::SegmentacionCompletada, this, &ProyectoPSM::MostrarImagenSegmentada); // eliminar linea cuando proceda
+ //   connect(segmentacion, &Segmentacion::SegmentacionCompletada, extraccionCaracteristicas, &ExtraccionCaracteristicas::ExtraerCaracteristicasImagen, QueuedConnection);
+    
+	/*clasificador = new Clasificador();
+    clasificador->Clasificador_RF();*/
+
+    Mat img = imread("results/10_270_40_003_norm_01.png");
+    ExtraccionCaracteristicas::VectorCaracteristicas caracteristicas = extraccionCaracteristicas->ExtraerCaracteristicasImagen(img);
+    vector<double> caracteristicasVector =
+    {
+             caracteristicas.rgb.R_mediana, caracteristicas.rgb.G_mediana, caracteristicas.rgb.B_mediana,
+             caracteristicas.rgb.R_media,   caracteristicas.rgb.G_media,   caracteristicas.rgb.B_media,
+             caracteristicas.hu.hu1,        caracteristicas.hu.hu2,        caracteristicas.hu.hu3,
+             caracteristicas.props.area,    caracteristicas.props.circularidad, caracteristicas.props.perimetro
+
+    };
+
+	clasificacionImagen = new ClasificacionImagen();
+	clasificacionImagen->Clasificacion(caracteristicasVector);
     // Crear carpeta dataset si no existe
     QDir dir;
     if (!dir.exists("dataset")) dir.mkdir("dataset");

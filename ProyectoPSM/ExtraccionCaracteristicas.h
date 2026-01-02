@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QtCore>
 #include "opencv2/opencv.hpp"
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -40,6 +41,7 @@ public:
 
 	ExtraccionCaracteristicas();
 	~ExtraccionCaracteristicas(void);
+	void ExtraerXyGClasificacion();
  
 private:
 	RGBResult obtenerMedianaMediaRGB(const Mat& ImagenSegmentadaColor);
@@ -47,7 +49,7 @@ private:
 	ImagenProps obtenerPropiedadesImagen(const Mat& BW);
 
 public slots:
-	void ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
+	VectorCaracteristicas ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
 
 signals:
 	void ListaCaracterisiticas(const VectorCaracteristicas& caracteristicas);

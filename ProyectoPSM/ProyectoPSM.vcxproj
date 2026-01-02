@@ -110,6 +110,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ClasificacionImagen.cpp" />
+    <ClCompile Include="Clasificador.cpp" />
     <ClCompile Include="ExtraccionCaracteristicas.cpp" />
     <ClCompile Include="Segmentacion.cpp" />
     <ClCompile Include="VideoAcquisition.cpp" />
@@ -127,6 +129,16 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="Segmentacion.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="Clasificador.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="datos\G.csv" />
+    <None Include="datos\X.csv" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="ClasificacionImagen.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
