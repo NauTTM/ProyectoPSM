@@ -44,6 +44,7 @@ private:
     Mat frameActual;
     bool Recording;
     void MostrarImagenSegmentada(const Mat& img1, const vector<vector<Point>>& Bordes);
+    void MostrarClase(const int tipoClase);
     static QImage matToQImage(const Mat& mat);
 	Segmentacion *segmentacion;
     QThread *threadSegmentacion;
@@ -53,8 +54,8 @@ private:
     ExtraccionCaracteristicas *extraccionCaracteristicas;
 	QThread *extraccionThread;
 
-	Clasificador* clasificador;
 	ClasificacionImagen* clasificacionImagen;
+    QThread *clasificadorThread;
 };
 
 #endif // PROYECTOPSM_H

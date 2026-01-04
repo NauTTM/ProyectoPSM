@@ -11,16 +11,19 @@ class ClasificacionImagen : public QThread {
 	Q_OBJECT
 public: 
 	ClasificacionImagen();
-	void Clasificacion(const vector<double>& caracteristicasVector);
+	~ClasificacionImagen();
 private:
-	struct Modelo {
-		Ptr<ml::RTrees> modeloCargado;
-		Mat muMat;
-		Mat sigmaMat;
-	};
-	Modelo CargarModelo();
-	ExtraccionCaracteristicas::VectorCaracteristicas ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
-	vector<double> PrepararVector(const ExtraccionCaracteristicas::VectorCaracteristicas& vector);
-	vector<double> NormalizarCaracteristicas(const vector<double>& mu, const vector<double>& sigma, const vector<double>& vector);
-	float Prediccion(const vector<double>& caracteristicas_normalizadas, const Ptr<ml::RTrees> modeloCargado);
+	vector<double> VectorSigma;
+	vector<double> VectorMu;
+	Ptr<ml::RTrees> ModeloCargado;
+
+	vector<double> ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
+	vector<double> NormalizarCaracteristicas(const vector<double>& vector);
+	int Prediccion(const vector<double>& caracteristicas_normalizadas);
+
+public slots:
+	void Clasificacion(const vector<double>& caracteristicasVector);
+
+signals:
+	void ResultadoClasificacion(const int id_clase);
 };

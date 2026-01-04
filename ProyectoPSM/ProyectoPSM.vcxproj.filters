@@ -77,4 +77,8 @@
     <None Include="datos\G.csv" />
     <None Include="datos\X.csv" />
   </ItemGroup>
+  <ItemGroup>
+    <Xml Include="datos\clasificador_RF.xml" />
+    <Xml Include="datos\parametros_norm.xml" />
+  </ItemGroup>
 </Project>
