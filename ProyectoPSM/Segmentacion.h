@@ -7,26 +7,43 @@
 using namespace cv;
 using namespace std;
 
+// Definion de la clase segmentacion en hilo dedicado
 class Segmentacion : public QThread {
 	Q_OBJECT
 
 public:
-	//constructor por defecto
+	// Constructor por defecto
 	Segmentacion();
 
-	//destructor
+	// Destructor
 	~Segmentacion();
-	Mat BalanceBlancos(const Mat& Imagen);
-	vector<Mat> AumentoSaturacion(const Mat& I_wb);
-	vector<Mat> CorreccionIluminacion(const vector<Mat> &hsv_channels);
-	Mat SegmentacionImagen(const vector<Mat> &hsv_channels);
-	Mat FiltrarObjetoLego(const Mat& mask);
-	Mat RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
-	vector<vector<Point>> MostrarBordes(const Mat& bw);
-	void SegmentarTodasImagenes();
 
+	// Balance de blacos
+	Mat BalanceBlancos(const Mat& Imagen);
+
+	// Aumento de saturacion
+	vector<Mat> AumentoSaturacion(const Mat& I_wb);
+
+	// Correccion de iluminacion
+	vector<Mat> CorreccionIluminacion(const vector<Mat> &hsv_channels);
+
+	// Segmentacion binaria
+	Mat SegmentacionImagen(const vector<Mat> &hsv_channels);
+
+	// Filtrado del objetivo principal (LEGO)
+	Mat FiltrarObjetoLego(const Mat& mask);
+
+	// Recorte y normalizacion
+	Mat RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
+
+	// Obtencion de bordes
+	vector<vector<Point>> MostrarBordes(const Mat& bw);
+
+// Punto de entrada del hilo
 public slots:
 	void SegmentarImagen(const Mat& Imagen);
+
+// Salidad del proceso de segmentacion
 signals:
 	void SegmentacionCompletada(const Mat& Imagen, const vector<vector<Point>>& Bordes);
 };

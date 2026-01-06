@@ -20,6 +20,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class ProyectoPSM; }
 QT_END_NAMESPACE
 
+// Definicion de la clase
 class ProyectoPSM : public QMainWindow
 {
     Q_OBJECT
@@ -28,14 +29,17 @@ public:
     ProyectoPSM(QWidget* parent = nullptr);
     ~ProyectoPSM();
 
+// Definicion de metodos 
 private slots:
     void iniciarDetenerGrabacion();
     void actualizarFrame();
     void capturarImagen();
 
+// Senal
 signals:
     void enviarFrame(const Mat& frame);
 
+// Atributos principales
 private:
     Ui::ProyectoPSM* ui;
     CVideoAcquisition camara;
@@ -48,7 +52,7 @@ private:
     static QImage matToQImage(const Mat& mat);
 	Segmentacion *segmentacion;
     QThread *threadSegmentacion;
-	int ContadorFrames;
+	int ContadorFrames; // Variable auxilar para control de frames
 	vector<vector<Point>> BordesActuales;
 	
     ExtraccionCaracteristicas *extraccionCaracteristicas;

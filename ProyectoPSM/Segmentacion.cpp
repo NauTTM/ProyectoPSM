@@ -4,196 +4,157 @@ Segmentacion::Segmentacion() {
 }
 
 Segmentacion::~Segmentacion() {
-
 }
 
-// Esta funcion es solo para segmentar todas las imagenes para el clasificador
-//void Segmentacion::SegmentarTodasImagenes() {
-//	vector<vector<double>> X;
-//	vector<double> G;
-//	QDir directory("imagenes/");
-//
-//	QStringList filters;
-//	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
-//	QStringList files = directory.entryList(filters, QDir::Files);
-//
-//    QDir outDir(directory.absolutePath());
-//    if (!outDir.exists("results")) {
-//        outDir.mkdir("results");
-//    }
-//	for (int i = 0; i < files.size(); ++i) {
-//		QString fileName = files[i];
-//		int numero = fileName.section('_', 0, 0).toInt();
-//
-//		Mat I = imread(directory.absoluteFilePath(fileName).toStdString());
-//		
-//		Mat imagenSegmentadaRecortada = SegmentarImagen(I);
-//	
-//        QFileInfo info(fileName);
-//        QString baseName = info.completeBaseName(); 
-//        QString extension = info.suffix();          
-//
-//        QString newFileName = baseName + "_norm." + extension;
-//
-//        QString outputPath = outDir.absoluteFilePath("results/" + newFileName);
-//
-//        imwrite(outputPath.toStdString(), imagenSegmentadaRecortada);
-//	}
-//
-//}
-
+// Funcion SegmentarImagen que se ejecuta en un hilo independiente
 void Segmentacion::SegmentarImagen(const Mat& Imagen) {
-    //Mat img = imread("dataset/11_0_90_006.jpg");
+        // Variables auxiliares
         Mat sat, img1, img8bit;
 		vector<vector<Point>> img2;
+
+        // Aplicamos balance de blancos
         Mat blanco = BalanceBlancos(Imagen);
-        //blanco.convertTo(img1, CV_8UC3, 255.0);
+
+        // Conversion a HSV y aumento de saturacion
         vector<Mat> vecSat = AumentoSaturacion(blanco);
-        /*merge(vecSat, sat);
-        cvtColor(sat, img8bit, COLOR_HSV2BGR);
-        img8bit.convertTo(img1, CV_8UC3, 255.0);*/
+
+        // Correcion de iluminacion
         vector<Mat> corr = CorreccionIluminacion(vecSat);
-        /*merge(corr, sat);
-        cvtColor(sat, img8bit, COLOR_HSV2BGR);
-        img8bit.convertTo(img1, CV_8UC3, 255.0);*/
-       Mat mask = SegmentacionImagen(corr);
-       //mask.convertTo(img1, CV_8UC1, 255.0);
-      //img1 = mask;
-       /* int type = mask.type();*/
+
+        // Segmentacion binaria
+        Mat mask = SegmentacionImagen(corr);
+
+        // Filtrado del objeto relevante
         Mat bw = FiltrarObjetoLego(mask);
-      // bw.convertTo(img1, CV_8UC1, 255.0);
+
+        // Recorte y normalizacion del objeto
         Mat objeto = RecorteAjusteImagen(corr, bw);
-       img1 = objeto;
-        img2 = MostrarBordes(bw);
-       if(!img1.empty())
+        img1 = objeto;  
+        img2 = MostrarBordes(bw); // Obtencion de contornos
+
+        // Emision del resultado
+        if(!img1.empty())
            emit SegmentacionCompletada(img1, img2);
        
 }
 
+// Funcion balanceo de blancos para reducir dominantes de color por iluminacion en la imagen
 Mat Segmentacion::BalanceBlancos(const Mat& Imagen) {
-    //// 1. Convertir a float y normalizar a [0, 1]
+
+    //1. Convertir a float y normalizar a [0, 1]
     Mat I_wb;
     Imagen.convertTo(I_wb, CV_32FC3, 1.0 / 255.0);
 
-    //// 2. Separar los canales (OpenCV usa BGR por defecto)
-    //vector<Mat> channels;
-    //split(Imagen_double, channels);
-    //Mat B = channels[0];
-    //Mat G = channels[1];
-    //Mat R = channels[2];
-
+    //2. Calculo de la media de cada canal
 	Scalar meanVal = mean(I_wb);
-    //// 3. Calcular las medias (mean)
+
+    //3. Obtencion de las medias por canal 
     float mediaB = meanVal[0];
     float mediaG = meanVal[1];
     float mediaR = meanVal[2];
 
-    //// 4. Aplicar las correcciones (Evitar división por cero)
+    //4. Aplicar las correcciones (Evitar división por cero). Canal de refencia: G
     float kR = (mediaR > 0.f) ? (mediaG / mediaR) : 1.f;
     float kB = (mediaB > 0) ? (mediaG / mediaB) : 1.f;
 
-    //// 5. Concatenar
-    //vector<Mat> channels_wb = { B, G, R };
-    //Mat I_wb;
-    //merge(channels_wb, I_wb);
-
+    //5. Aplicacion de las correccion a los canales a los canales R y B
 	vector<Mat> canales;
 	split(I_wb, canales);
 	canales[2] = canales[2] * kR; // Canal R
 	canales[0] = canales[0] * kB; // Canal B
 	merge(canales, I_wb);
-
-    //// 6. Limitar valores entre 0 y 1 (min/max)
-    //max(I_wb, 0.0, I_wb);
-    //min(I_wb, 1.0, I_wb);
-
-
+    
+    // Retorno
     return I_wb;
 }
 
+// Funcion de aumento de saturacion para diferenciar entre objeto y fondo
 vector<Mat> Segmentacion::AumentoSaturacion(const Mat& I_wb) {
-    // 1. Asegurarnos de que la imagen esté en punto flotante (0.0 a 1.0)
-    // Si I_wb ya viene de la función anterior, ya es CV_64F o CV_32F.
+    // 1. Conversion al espacio HSV
     Mat hsvI;
-    //I_wb.convertTo(img8bit, CV_8UC3, 255.0);
-    // 2. rgb2hsv(I_wb)
+
+    // 2. Separacion de los canales HSV
     cvtColor(I_wb, hsvI, COLOR_BGR2HSV);
 
     // 3. Separar los canales HSV
     vector<Mat> hsv_channels;
     split(hsvI, hsv_channels);
 
-    // hsv_channels[0] es H (Hue)
-    // hsv_channels[1] es S (Saturation)
-    // hsv_channels[2] es V (Value/Brightness)
 
-    // 4. hsvI(:,:,2) = min(hsvI(:,:,2)*1.55, 1);
+    // 4. Aumento del canal de saturacion 
     hsv_channels[1] *= 1.55f;
     min(hsv_channels[1], 1.0f, hsv_channels[1]); // Limitar a 1.0
 
-    
-
+    // Retorno
     return hsv_channels;
 }
 
+// Funcion para la correccion de iluminacion y corregir sombras y focos de luz
 vector<Mat> Segmentacion::CorreccionIluminacion(const vector<Mat> &hsv_channels) {
-
-
-    // hsv_channels[0] = H, [1] = S, [2] = V
+    
+    // Parametros
     Mat V, V_bg, V_small, V_bg_small;
-    //hsv_channels[2].convertTo(V, CV_64F, 1.0 / 255.0);
-	V = hsv_channels[2];
-    // 1. Reducir solo para calcular el fondo (1/4 del tamaño)
-    resize(V, V_small, Size(), 0.25, 0.25, INTER_LINEAR);
-    // 2. El sigma ahora es proporcional (120 / 4 = 30)
-    GaussianBlur(V_small, V_bg_small, Size(0, 0), 50.0);
-    // 3. Regresar al tamaño original
-    resize(V_bg_small, V_bg, V.size(), 0, 0, INTER_LINEAR);
 
-    // 4. hsvI(:,:,3) = V ./ max(V_bg, 0.3);
-    // Primero aplicamos el máximo para evitar dividir por valores muy pequeños o cero
+    //1. Seleccion del canal V
+	V = hsv_channels[2];
+
+    //2. Reducir solo para calcular el fondo (1/4 del tamaño)
+    resize(V, V_small, Size(), 0.25, 0.25, INTER_LINEAR);
+
+    //3. Suavizado fuerte segune estimacion del fondo
+    GaussianBlur(V_small, V_bg_small, Size(0, 0), 50.0); // Filtro gaussiano de sigma alto para eliminar estructuras pequenas
+
+    //4. Regresar al tamaño original
+    resize(V_bg_small, V_bg, V.size(), 0, 0, INTER_LINEAR);
+;
+    //5. Primero aplicamos el máximo para evitar dividir por valores muy pequeños o cero
     max(V_bg, 0.3, V_bg);
 
-    // División elemento a elemento
+    //6. Normalizacion del brillo dejando un objeto con brillo homogeneo
     Mat V_corregido;
     divide(V, V_bg, V_corregido);
 
+    //7. Saturacion de valores
 	min(V_corregido, 1.0, V_corregido); // Limitar a 1.0
+
+    //8. Reconstruccion del espacio HSV
 	vector<Mat> hsv_channels_corregidos = hsv_channels;
 	hsv_channels_corregidos[2] = V_corregido;
-    //V_corregido.convertTo(hsv_channels[2], CV_8U, 255.0);
 
+    //Retorno
     return hsv_channels_corregidos;
 }
 
+// Funcion Segmentacion Imagen
 Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
+    // Parametros
     Mat hsv, s_norm, mask;
 
-    hsv_channels[1].convertTo(s_norm, CV_8UC1, 255.0); // Canal Saturación
+    // Seleccion del canal de saturacion
+    hsv_channels[1].convertTo(s_norm, CV_8UC1, 255.0); 
     
-    // 3. mask = imbinarize(s_norm, graythresh(s_norm));
     // Convertimos a 8 bits temporalmente para usar OTSU (equivalente a graythresh)
     Mat s_8u;
+    // Umbralizacion automatica OTSU
     threshold(s_norm, mask, 0, 255, THRESH_BINARY | THRESH_OTSU);
 
-    // 4. Operaciones Morfológicas (Cierres y Aperturas)
-    // strel('disk', n) 
+    // Operaciones Morfológicas (Cierres y Aperturas) con elempentos estructurantes
     Mat kernel4, kernel6, kernel8;
     kernel4 = getStructuringElement(MORPH_ELLIPSE, Size(9, 9));
     kernel6 = getStructuringElement(MORPH_ELLIPSE, Size(13, 13));
     kernel8 = getStructuringElement(MORPH_ELLIPSE, Size(17, 17));
 
-    // mask = imclose(mask, strel('disk',4));
+    // Cierre inicial para relleno de huecos pequenos
     morphologyEx(mask, mask, MORPH_CLOSE, kernel4);
  
-    // mask = imopen(mask, strel('disk',6));
+    // Apetura para la eliminacion de ruido
     morphologyEx(mask, mask, MORPH_OPEN, kernel6);
 
-    // mask = imclose(mask, strel('disk',8));
+    // Cierre final para el suavizado del contorno
     morphologyEx(mask, mask, MORPH_CLOSE, kernel8);
 
-    // 5. mask = imfill(mask, 'holes');
-    // OpenCV no tiene imfill directo, se usa floodFill para llenar huecos
+    // Relleno de huecos internos
+    // OpenCV no tiene imfill directo, se usa floodFill para llenar huecos simulando imfill de MATLAB
     Mat mask_filled;
     copyMakeBorder(mask, mask_filled, 1, 1, 1, 1,
         BORDER_CONSTANT, Scalar(0));
@@ -203,7 +164,6 @@ Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
     mask_filled = mask_filled(Rect(1, 1, mask.cols, mask.rows));
     mask = (mask | mask_filled);
 
-    // 6. mask = imclearborder(mask);
     // Eliminar objetos que tocan el borde
     Mat temp;
     mask.copyTo(temp);
@@ -224,23 +184,25 @@ Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
     return mask;
 }
 
+// Funcion Filtrar Objeto para conservar el objeto de interes (LEGO)
 Mat Segmentacion::FiltrarObjetoLego(const Mat& mask) {
-    // 1. CC = bwconncomp(mask) y regionprops
-    // En OpenCV usamos findContours para obtener los objetos
+
+    // 1. Deteccion de objetos conectados
     vector<vector<Point>> contours;
     findContours(mask, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
+    // Error mascara vacia
     if (contours.empty()) return Mat::zeros(mask.size(), CV_8UC1);
 
-    // 2. Calcular áreas y encontrar la máxima
+    // 2. Calcular areas y encontrar la maxima
     double maxArea = 0.0;
     for (const auto& contour : contours) 
         maxArea = max(maxArea, contourArea(contour));
 
-    // 3. Crear una máscara vacía (BW = false(size(mask)))
+    // 3. Crear una mascara vacía 
     Mat BW = Mat::zeros(mask.size(), CV_8UC1);
 
-    // 4. Filtrar: props.Area >= 0.1 * max(props.Area)
+    // 4. Filtrar: quedarnos con objetas de mas de 10% de area maxima
     double thresholdArea = 0.1 * maxArea;
 
     for (const auto& contour : contours) {
@@ -251,30 +213,36 @@ Mat Segmentacion::FiltrarObjetoLego(const Mat& mask) {
         }
     }
 
+    // Retorno
     return BW;
 }
 
+// Funcion recorte y ajuste de imagen
 Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Mat& BW) {
 
+    // Parametros de normalizacion
     Mat I_norm;
-    Size tam_final(200, 200);
+    Size tam_final(200, 200); // Tamano final comun para todos los objetos
     int extra = 20;
- 
+    
+    // Reconstruccion de la imagen en color
 	Mat I_hsv_float, I_bgr_float,I_original;
 	merge(hsv_channels, I_hsv_float);
-	
     cvtColor(I_hsv_float, I_bgr_float, COLOR_HSV2BGR);
     I_bgr_float.convertTo(I_original, CV_8UC3, 255.0);
 
+    // Preparacion de la mascara binaria. Asegura el formato
     Mat bw_8u;
     BW.convertTo(bw_8u, CV_8UC1, 255.0);
-    // SE = strel('square', 15);
+
+    // Elemento estructurante para limpieza local
     Mat SE = getStructuringElement(MORPH_RECT, Size(15, 15));
 
-    // Encontrar componentes (props en MATLAB)
+    // Deteccion del objeto principal
+    // Localizacion de todos los objetos segmentados
     vector<vector<Point>> contours;
     findContours(bw_8u, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
+    // Seleccion del objeto dominante
     int idxMax = -1;
     double areaMax = 0;
 
@@ -287,7 +255,6 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
     }
 
     if (contours.size() == 0) return I_norm;
-    //for (size_t k = 0; k < contours.size(); k++) {
         // 1. Obtener BoundingBox (bb)
         Rect bb = boundingRect(contours[idxMax]);
 
@@ -299,7 +266,7 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
 
         Rect roi(x, y, w, h);
 
-        // 3. Crear mascara local para este objeto específico
+        // 3. Crear mascara local para este objeto especifico
         Mat mask_local = Mat::zeros(bw_8u.size(), CV_8UC1);
         drawContours(mask_local, contours, static_cast<int>(idxMax), Scalar(255), -1);
 
@@ -307,16 +274,17 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
         Mat mask_crop = mask_local(roi).clone();
         Mat I_crop = I_original(roi).clone();
 
-        // 5. Limpieza morfológica local
+        // 5. Limpieza morfologica local
         morphologyEx(mask_crop, mask_crop, MORPH_OPEN, SE);
         morphologyEx(mask_crop, mask_crop, MORPH_CLOSE, SE);
 
-        // 6. Aplicar máscara a la imagen (I_crop_masked)
+        // 6. Aplicar mascara a la imagen (I_crop_masked)
         // Como I_original es double [0,1], mask_crop debe convertirse a ese tipo
         Mat mask_float;
         mask_crop.convertTo(mask_float, I_original.type(), 1.0 / 255.0);
 
         Mat I_crop_masked;
+
         // Multiplicación canal por canal
         vector<Mat> channels;
         split(I_crop, channels);
@@ -327,38 +295,19 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
 
         // 7. Redimensionar (imresize)
         resize(I_crop_masked, I_norm, tam_final);
-        // 'nearest' para la máscara binaria para no crear grises en los bordes
-        //resize(mask_crop, BW_norm, tam_final, 0, 0, INTER_NEAREST);
-
-        //resultado.push_back(I_norm);
-       // resultado.mascarasBin.push_back(BW_norm);
-   // }
-
+    
+    // Retorno
     return I_norm;
 }
 
+// Funcion mostrar bordes
 vector<vector<Point>> Segmentacion::MostrarBordes(const Mat& bw) {
-    // 1. Preparar la imagen de salida
-    // Si I_original es CV_64FC3, la pasamos a 8 bits para visualizar fácilmente
-    //Mat res;
-    //if (I_original.type() == CV_32FC3)
-    //    I_original.convertTo(res, CV_8UC3, 255.0);
-    //else if (I_original.type() == CV_8UC3)
-    //    res = I_original.clone();
-    //else
-    //    CV_Error(Error::StsUnsupportedFormat,
-    //        "Formato de imagen no soportado");
-
-    // 2. Encontrar los contornos de la máscara
-    // Usamos una copia de mask porque findContours puede modificarla
+    
+    // Obtencion de contornos externos del objeto
     vector<vector<Point>> contours;
     findContours(bw.clone(), contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-    // 3. Dibujar los bordes sobre la imagen
-    // Scalar(0, 255, 0) dibujará el borde en VERDE
-    // El parámetro '2' es el grosor de la línea
-   
-
+    // Retorno
     return contours;
 }
 

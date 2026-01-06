@@ -5,30 +5,37 @@
 ProyectoPSM::ProyectoPSM(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::ProyectoPSM)
 {
+    // Inicializamos la ventna principal y cargarmos interfaz grafica
     ui->setupUi(this);
     Mat img = imread("imagenes/04_090_70_002.jpg");
 
+    // Inicializamos los parametros del sistema y creacion de hilos
     temporizador = new QTimer(this);
     Recording = false;
     threadSegmentacion = new QThread(this);
     extraccionThread = new QThread(this);
     clasificadorThread = new QThread(this);
 
-	segmentacion = new Segmentacion();
-	extraccionCaracteristicas = new ExtraccionCaracteristicas();
-    clasificacionImagen = new ClasificacionImagen();
+    // Creamos tres hilos cada uno para diferentes partes
+	segmentacion = new Segmentacion(); // Hilo segmentacion
+	extraccionCaracteristicas = new ExtraccionCaracteristicas(); // Hilo extraccion de caracteristicas
+    clasificacionImagen = new ClasificacionImagen(); // Hilo clasificiacion de imagen
+
     // mover el trabajador al hilo
     segmentacion->moveToThread(threadSegmentacion);
 	extraccionCaracteristicas->moveToThread(extraccionThread);
     clasificacionImagen->moveToThread(clasificadorThread);
 
+    // Arrancamos los hilos
     threadSegmentacion->start();
 	extraccionThread->start();
 	clasificadorThread->start();
 
+    // Iniamos el parametro para contar los frames
 	ContadorFrames = 0;
+
     // Conectar señales y slots
-    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
+    connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion())); 
     connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
     connect(temporizador, SIGNAL(timeout()), this, SLOT(actualizarFrame()));
     connect(ui->btnCapture, SIGNAL(clicked()), this, SLOT(capturarImagen()));
@@ -38,11 +45,6 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 	connect(extraccionCaracteristicas, &ExtraccionCaracteristicas::ListaCaracterisiticas, clasificacionImagen, &ClasificacionImagen::Clasificacion, QueuedConnection);
     connect(clasificacionImagen, &ClasificacionImagen::ResultadoClasificacion, this, &ProyectoPSM::MostrarClase);
    
-
-	/*Mat img1 = segmentacion->SegmentarImagen(img);
-    QImage imagen = matToQImage(img1);
-    ui->capturarImagen->setPixmap(QPixmap::fromImage(imagen).scaled(
-        ui->capturarImagen->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));*/
     // Crear carpeta dataset si no existe
     QDir dir;
     if (!dir.exists("capturas")) dir.mkdir("capturas");
@@ -60,9 +62,10 @@ ProyectoPSM::~ProyectoPSM()
     delete ui;
 }
 
-
+// Funcion para el control de grabacion
 void ProyectoPSM::iniciarDetenerGrabacion()
 {
+    // Error si no hay camara conectada
     if (!camara.CameraOK) {
         QMessageBox::warning(this, "Error", "No se pudo abrir la cámara.");
         return;
@@ -86,6 +89,7 @@ void ProyectoPSM::iniciarDetenerGrabacion()
     }
 }
 
+// Funcion para actualizacion de frames
 void ProyectoPSM::actualizarFrame()
 {
 	frameActual = camara.GetImage();
@@ -94,6 +98,7 @@ void ProyectoPSM::actualizarFrame()
 	ContadorFrames++;
 
 	Mat frameMostrar = frameActual.clone();
+
      //Convertimos a QImage para mostrar
 	if (BordesActuales.size() > 0)
         drawContours(frameMostrar, BordesActuales, -1, Scalar(0, 255, 0), 2);
@@ -104,9 +109,10 @@ void ProyectoPSM::actualizarFrame()
 	    emit enviarFrame(frameActual);
 }
 
-
+// Funcion para captura de imagenes
 void ProyectoPSM::capturarImagen()
 {
+    // Error si no existe imagen
     if (frameActual.empty()) {
         QMessageBox::warning(this, "Captura", "No hay imagen disponible.");
         return;
@@ -117,6 +123,7 @@ void ProyectoPSM::capturarImagen()
     QMessageBox::information(this, "Imagen guardada", nombre);
 }
 
+// Crear nombre unico segun fecha y hora
 QString ProyectoPSM::generarNombreArchivo()
 {
 	string extension = ".jpg";
@@ -143,6 +150,7 @@ QImage ProyectoPSM::matToQImage(const Mat& mat)
 
 }
 
+// Visualizacion de la imagen segmentada
 void ProyectoPSM::MostrarImagenSegmentada(const Mat& img1, const vector<vector<Point>>& Bordes)
 {    
     if(Bordes.size() > 0) BordesActuales = Bordes;
@@ -153,6 +161,7 @@ void ProyectoPSM::MostrarImagenSegmentada(const Mat& img1, const vector<vector<P
 
 }
 
+// Mostrar el codigo detectadoen forma de dos digitos
 void ProyectoPSM::MostrarClase(int tipoClase) {
     if (tipoClase)
         ui->codigo->setText(QString("%1").arg(tipoClase, 2, 10, QChar('0')));

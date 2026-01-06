@@ -13,7 +13,6 @@ class ExtraccionCaracteristicas : public QThread {
 public:
 	ExtraccionCaracteristicas();
 	~ExtraccionCaracteristicas(void);
-	void ExtraerXyGClasificacion();
  
 private:
 	vector<double> obtenerMedianaMediaRGB(const Mat& ImagenSegmentadaColor);
