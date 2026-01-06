@@ -11,7 +11,7 @@ ExtraccionCaracteristicas::~ExtraccionCaracteristicas(void) {
 //void ExtraccionCaracteristicas::ExtraerXyGClasificacion() {
 //	vector<vector<double>> X;
 //	vector<double> G;
-//	QDir directory("results/");
+//	QDir directory("imagenes/results/");
 //
 //	QStringList filters;
 //	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
@@ -48,7 +48,7 @@ ExtraccionCaracteristicas::~ExtraccionCaracteristicas(void) {
 void ExtraccionCaracteristicas::ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado) {
 
 
-	//cv::Mat ImagenSegmentadaColorTamanoAjustado = cv::imread("pruebas/01_000_10_001_norm_01.png");
+	//cv::Mat ImagenSegmentadaColorTamano = cv::imread("pruebas/03_045_10_004_norm_01.png");
 
 	Mat gray, bw;
 
@@ -67,7 +67,7 @@ void ExtraccionCaracteristicas::ExtraerCaracteristicasImagen(const Mat& ImagenSe
 	vectorCaracteristicas.insert(vectorCaracteristicas.end(), rgb.begin(), rgb.end());
 	vectorCaracteristicas.insert(vectorCaracteristicas.end(), hu.begin(), hu.end());
 	vectorCaracteristicas.insert(vectorCaracteristicas.end(), props.begin(), props.end());
-
+	
 	emit ListaCaracterisiticas(vectorCaracteristicas);
 }
 
@@ -141,7 +141,7 @@ vector<double> ExtraccionCaracteristicas::obtenerMomentosHu(const Mat& BW)
 
 vector<double> ExtraccionCaracteristicas::obtenerPropiedadesImagen(const Mat& BW) {
 
-	double area, perimetro, circularidad;
+	double area = 0, perimetro = 0, circularidad = 0;
 	// 2. Encontrar contornos (necesario para emular regionprops)
 	vector<vector<Point>> contours;
 	findContours(BW, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);

@@ -6,7 +6,7 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     : QMainWindow(parent), ui(new Ui::ProyectoPSM)
 {
     ui->setupUi(this);
-    //Mat img = imread("dataset/01_000_10_001.jpg");
+    Mat img = imread("imagenes/04_090_70_002.jpg");
 
     temporizador = new QTimer(this);
     Recording = false;
@@ -27,7 +27,6 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 	clasificadorThread->start();
 
 	ContadorFrames = 0;
-
     // Conectar señales y slots
     connect(ui->btnStart, SIGNAL(clicked()), this, SLOT(iniciarDetenerGrabacion()));
     connect(&camara, SIGNAL(NewImageSignal()), this, SLOT(GetImage()));
@@ -40,13 +39,13 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     connect(clasificacionImagen, &ClasificacionImagen::ResultadoClasificacion, this, &ProyectoPSM::MostrarClase);
    
 
-    //Mat img = imread("results/10_270_40_003_norm_01.png");
-    //vector<double> caracteristicas = extraccionCaracteristicas->ExtraerCaracteristicasImagen(img);
-  
-
+	/*Mat img1 = segmentacion->SegmentarImagen(img);
+    QImage imagen = matToQImage(img1);
+    ui->capturarImagen->setPixmap(QPixmap::fromImage(imagen).scaled(
+        ui->capturarImagen->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));*/
     // Crear carpeta dataset si no existe
     QDir dir;
-    if (!dir.exists("dataset")) dir.mkdir("dataset");
+    if (!dir.exists("capturas")) dir.mkdir("capturas");
 
     
 }
@@ -101,7 +100,7 @@ void ProyectoPSM::actualizarFrame()
     QImage imagen = matToQImage(frameMostrar);
     ui->capturarImagen->setPixmap(QPixmap::fromImage(imagen).scaled(
         ui->capturarImagen->size(), KeepAspectRatio, SmoothTransformation));
-	if (ContadorFrames % 30 == 0 || ContadorFrames == 1)
+	if (ContadorFrames % 40 == 0 || ContadorFrames == 1)
 	    emit enviarFrame(frameActual);
 }
 
@@ -120,7 +119,10 @@ void ProyectoPSM::capturarImagen()
 
 QString ProyectoPSM::generarNombreArchivo()
 {
-    return QString("dataset/1.jpg");
+	string extension = ".jpg";
+    return QString("capturas/captura_%1%2")
+        .arg(QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss"))
+        .arg(extension);
 }
 
 QImage ProyectoPSM::matToQImage(const Mat& mat)
@@ -142,14 +144,16 @@ QImage ProyectoPSM::matToQImage(const Mat& mat)
 }
 
 void ProyectoPSM::MostrarImagenSegmentada(const Mat& img1, const vector<vector<Point>>& Bordes)
-{
+{    
     if(Bordes.size() > 0) BordesActuales = Bordes;
-    QImage imagen = matToQImage(img1);
-    ui->ImagenSegmentada->setPixmap(QPixmap::fromImage(imagen).scaled(
-        ui->ImagenSegmentada->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+        QImage imagen = matToQImage(img1);
+        ui->ImagenSegmentada->setPixmap(QPixmap::fromImage(imagen).scaled(
+            ui->ImagenSegmentada->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
 }
 
 void ProyectoPSM::MostrarClase(int tipoClase) {
     if (tipoClase)
-        ui->clase->setText(QString::number(tipoClase));
+        ui->codigo->setText(QString("%1").arg(tipoClase, 2, 10, QChar('0')));
 }

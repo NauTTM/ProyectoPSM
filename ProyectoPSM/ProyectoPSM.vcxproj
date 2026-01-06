@@ -134,11 +134,11 @@
     <QtMoc Include="Clasificador.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="datos\G.csv" />
-    <None Include="datos\X.csv" />
+    <QtMoc Include="ClasificacionImagen.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="ClasificacionImagen.h" />
+    <None Include="datos\G.csv" />
+    <None Include="datos\X.csv" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="datos\clasificador_RF.xml" />

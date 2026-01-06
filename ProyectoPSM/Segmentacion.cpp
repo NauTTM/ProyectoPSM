@@ -7,9 +7,43 @@ Segmentacion::~Segmentacion() {
 
 }
 
+// Esta funcion es solo para segmentar todas las imagenes para el clasificador
+//void Segmentacion::SegmentarTodasImagenes() {
+//	vector<vector<double>> X;
+//	vector<double> G;
+//	QDir directory("imagenes/");
+//
+//	QStringList filters;
+//	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
+//	QStringList files = directory.entryList(filters, QDir::Files);
+//
+//    QDir outDir(directory.absolutePath());
+//    if (!outDir.exists("results")) {
+//        outDir.mkdir("results");
+//    }
+//	for (int i = 0; i < files.size(); ++i) {
+//		QString fileName = files[i];
+//		int numero = fileName.section('_', 0, 0).toInt();
+//
+//		Mat I = imread(directory.absoluteFilePath(fileName).toStdString());
+//		
+//		Mat imagenSegmentadaRecortada = SegmentarImagen(I);
+//	
+//        QFileInfo info(fileName);
+//        QString baseName = info.completeBaseName(); 
+//        QString extension = info.suffix();          
+//
+//        QString newFileName = baseName + "_norm." + extension;
+//
+//        QString outputPath = outDir.absoluteFilePath("results/" + newFileName);
+//
+//        imwrite(outputPath.toStdString(), imagenSegmentadaRecortada);
+//	}
+//
+//}
 
 void Segmentacion::SegmentarImagen(const Mat& Imagen) {
-    //Mat img = imread("dataset/01_000_10_001.jpg");
+    //Mat img = imread("dataset/11_0_90_006.jpg");
         Mat sat, img1, img8bit;
 		vector<vector<Point>> img2;
         Mat blanco = BalanceBlancos(Imagen);
@@ -19,20 +53,21 @@ void Segmentacion::SegmentarImagen(const Mat& Imagen) {
         cvtColor(sat, img8bit, COLOR_HSV2BGR);
         img8bit.convertTo(img1, CV_8UC3, 255.0);*/
         vector<Mat> corr = CorreccionIluminacion(vecSat);
-        //merge(corr, sat);
-        //cvtColor(sat, img8bit, COLOR_HSV2BGR);
-        //img8bit.convertTo(img1, CV_8UC3, 255.0);
+        /*merge(corr, sat);
+        cvtColor(sat, img8bit, COLOR_HSV2BGR);
+        img8bit.convertTo(img1, CV_8UC3, 255.0);*/
        Mat mask = SegmentacionImagen(corr);
        //mask.convertTo(img1, CV_8UC1, 255.0);
-     // img1 = mask;
+      //img1 = mask;
        /* int type = mask.type();*/
         Mat bw = FiltrarObjetoLego(mask);
-       // bw.convertTo(img1, CV_8UC1, 255.0);
-        Segmentacion::ObjetosSegmentados objetos = RecorteAjusteImagen(corr, bw);
-       img1 = objetos.imagenesColor[0];
+      // bw.convertTo(img1, CV_8UC1, 255.0);
+        Mat objeto = RecorteAjusteImagen(corr, bw);
+       img1 = objeto;
         img2 = MostrarBordes(bw);
-        emit SegmentacionCompletada(img1, img2);
-        
+       if(!img1.empty())
+           emit SegmentacionCompletada(img1, img2);
+       
 }
 
 Mat Segmentacion::BalanceBlancos(const Mat& Imagen) {
@@ -111,7 +146,7 @@ vector<Mat> Segmentacion::CorreccionIluminacion(const vector<Mat> &hsv_channels)
     // 1. Reducir solo para calcular el fondo (1/4 del tamaño)
     resize(V, V_small, Size(), 0.25, 0.25, INTER_LINEAR);
     // 2. El sigma ahora es proporcional (120 / 4 = 30)
-    GaussianBlur(V_small, V_bg_small, Size(0, 0), 30.0);
+    GaussianBlur(V_small, V_bg_small, Size(0, 0), 50.0);
     // 3. Regresar al tamaño original
     resize(V_bg_small, V_bg, V.size(), 0, 0, INTER_LINEAR);
 
@@ -135,7 +170,7 @@ Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
     Mat hsv, s_norm, mask;
 
     hsv_channels[1].convertTo(s_norm, CV_8UC1, 255.0); // Canal Saturación
-
+    
     // 3. mask = imbinarize(s_norm, graythresh(s_norm));
     // Convertimos a 8 bits temporalmente para usar OTSU (equivalente a graythresh)
     Mat s_8u;
@@ -150,7 +185,7 @@ Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
 
     // mask = imclose(mask, strel('disk',4));
     morphologyEx(mask, mask, MORPH_CLOSE, kernel4);
-
+ 
     // mask = imopen(mask, strel('disk',6));
     morphologyEx(mask, mask, MORPH_OPEN, kernel6);
 
@@ -159,16 +194,33 @@ Mat Segmentacion::SegmentacionImagen(const vector<Mat> &hsv_channels) {
 
     // 5. mask = imfill(mask, 'holes');
     // OpenCV no tiene imfill directo, se usa floodFill para llenar huecos
-    Mat mask_filled = mask.clone();
+    Mat mask_filled;
+    copyMakeBorder(mask, mask_filled, 1, 1, 1, 1,
+        BORDER_CONSTANT, Scalar(0));
+
     floodFill(mask_filled, Point(0, 0), Scalar(255));
     bitwise_not(mask_filled, mask_filled);
+    mask_filled = mask_filled(Rect(1, 1, mask.cols, mask.rows));
     mask = (mask | mask_filled);
 
     // 6. mask = imclearborder(mask);
     // Eliminar objetos que tocan el borde
-    Rect rect(0, 0, mask.cols, mask.rows);
-    rectangle(mask, rect, Scalar(0), 2); // Dibujar borde negro de 2px
+    Mat temp;
+    mask.copyTo(temp);
 
+    // Buscar contornos
+    std::vector<std::vector<Point>> contours;
+    findContours(temp, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+    for (size_t i = 0; i < contours.size(); ++i) {
+        // Si el contorno toca el borde de la imagen, eliminarlo
+        Rect bbox = boundingRect(contours[i]);
+        if (bbox.x == 0 || bbox.y == 0 ||
+            bbox.x + bbox.width == mask.cols ||
+            bbox.y + bbox.height == mask.rows) {
+            drawContours(mask, contours, (int)i, Scalar(0), FILLED);
+        }
+    }
     return mask;
 }
 
@@ -202,9 +254,9 @@ Mat Segmentacion::FiltrarObjetoLego(const Mat& mask) {
     return BW;
 }
 
-Segmentacion::ObjetosSegmentados Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Mat& BW) {
+Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Mat& BW) {
 
-    ObjetosSegmentados resultado;
+    Mat I_norm;
     Size tam_final(200, 200);
     int extra = 20;
  
@@ -223,9 +275,21 @@ Segmentacion::ObjetosSegmentados Segmentacion::RecorteAjusteImagen(const vector<
     vector<vector<Point>> contours;
     findContours(bw_8u, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-    for (size_t k = 0; k < contours.size(); k++) {
+    int idxMax = -1;
+    double areaMax = 0;
+
+    for (size_t i = 0; i < contours.size(); i++) {
+        double area = contourArea(contours[i]);
+        if (area > areaMax) {
+            areaMax = area;
+            idxMax = i;
+        }
+    }
+
+    if (contours.size() == 0) return I_norm;
+    //for (size_t k = 0; k < contours.size(); k++) {
         // 1. Obtener BoundingBox (bb)
-        Rect bb = boundingRect(contours[k]);
+        Rect bb = boundingRect(contours[idxMax]);
 
         // 2. Aplicar el "extra" (Padding) con límites de imagen
         int x = max(0, bb.x - extra);
@@ -237,7 +301,7 @@ Segmentacion::ObjetosSegmentados Segmentacion::RecorteAjusteImagen(const vector<
 
         // 3. Crear mascara local para este objeto específico
         Mat mask_local = Mat::zeros(bw_8u.size(), CV_8UC1);
-        drawContours(mask_local, contours, static_cast<int>(k), Scalar(255), -1);
+        drawContours(mask_local, contours, static_cast<int>(idxMax), Scalar(255), -1);
 
         // 4. Recortar (imcrop)
         Mat mask_crop = mask_local(roi).clone();
@@ -262,16 +326,15 @@ Segmentacion::ObjetosSegmentados Segmentacion::RecorteAjusteImagen(const vector<
         merge(channels, I_crop_masked);
 
         // 7. Redimensionar (imresize)
-        Mat I_norm, BW_norm;
         resize(I_crop_masked, I_norm, tam_final);
         // 'nearest' para la máscara binaria para no crear grises en los bordes
-        resize(mask_crop, BW_norm, tam_final, 0, 0, INTER_NEAREST);
+        //resize(mask_crop, BW_norm, tam_final, 0, 0, INTER_NEAREST);
 
-        resultado.imagenesColor.push_back(I_norm);
-        resultado.mascarasBin.push_back(BW_norm);
-    }
+        //resultado.push_back(I_norm);
+       // resultado.mascarasBin.push_back(BW_norm);
+   // }
 
-    return resultado;
+    return I_norm;
 }
 
 vector<vector<Point>> Segmentacion::MostrarBordes(const Mat& bw) {

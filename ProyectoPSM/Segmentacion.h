@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QtCore>
 #include "opencv2/opencv.hpp"
+#include <fstream>
 
 using namespace cv;
 using namespace std;
@@ -15,18 +16,14 @@ public:
 
 	//destructor
 	~Segmentacion();
-	struct ObjetosSegmentados {
-		vector<Mat> imagenesColor; // I_norm_all
-		vector<Mat> mascarasBin;   // BW_norm_all
-	};
 	Mat BalanceBlancos(const Mat& Imagen);
 	vector<Mat> AumentoSaturacion(const Mat& I_wb);
 	vector<Mat> CorreccionIluminacion(const vector<Mat> &hsv_channels);
 	Mat SegmentacionImagen(const vector<Mat> &hsv_channels);
 	Mat FiltrarObjetoLego(const Mat& mask);
-	ObjetosSegmentados RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
+	Mat RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
 	vector<vector<Point>> MostrarBordes(const Mat& bw);
-	
+	void SegmentarTodasImagenes();
 
 public slots:
 	void SegmentarImagen(const Mat& Imagen);
