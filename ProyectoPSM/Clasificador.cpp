@@ -7,21 +7,26 @@ Clasificador::Clasificador() {
 void Clasificador::Clasificador_RF() {
 
 	// Cargar los datos para el entrenamiento
-    vector<vector<double>> X = CargarObservacionesCSV("datos/X.csv");
-    vector<double> G = CargarEtiquetasCSV("datos/G.csv");
+    vector<vector<double>> X = CargarObservacionesCSV("datos/PropsRGBHS17/X.csv");
+    vector<double> G = CargarEtiquetasCSV("datos/PropsRGBHS17/G.csv");
 
     // Normalizacion de las caracteristicas (X)
 	ParamsNormalizacion paramsNorm = NormalizarDatos(X);
 
 	// Validacion cruzada, para evaluacion posterior
 	KFoldPartition cv = CrearCVPartition(G.size(), 5);
+    double loss = CalcularLossCV(paramsNorm.Xn, G, cv);
+
+    // 2. CÁLCULO DE ACCURACY (Equivalente a accuracy = 1 - kfoldLoss)
+    double accuracy = 1.0 - loss;
+    qDebug() << "Accuracy por Validacion Cruzada:" << accuracy;
 
 	// Entrenamiento del clasificador tipo: Random Forest
 	Ptr<ml::RTrees> modeloRF = EntrenarRandomForest(paramsNorm.Xn, G);
 
 	// Guardar el modelo entrenado
-    modeloRF->save("datos/clasificador_RF.xml");
-    FileStorage fs("datos/parametros_norm.xml", FileStorage::WRITE);
+    modeloRF->save("datos/PropsRGBHS17/clasificador_RF.xml");
+    FileStorage fs("datos/PropsRGBHS17/parametros_norm.xml", FileStorage::WRITE);
     fs << "mu" << Mat(paramsNorm.mu).t();       // Guardamos mu como fila
     fs << "sigma" << Mat(paramsNorm.sigma).t(); // Guardamos sigma como fila
     fs.release();
@@ -173,14 +178,11 @@ Clasificador::KFoldPartition Clasificador::CrearCVPartition(int numMuestras, int
 
 // Funcion entrenar el clasificador Random Forest
 Ptr<ml::RTrees> Clasificador::EntrenarRandomForest(const vector<vector<double>>& X, const vector<double>& Y) {
-
-    // Convertir datos de std::vector a cv::Mat (Requerido por OpenCV)
     int filas = X.size();
     int cols = X[0].size();
     Mat data(filas, cols, CV_32F);
-    Mat responses(filas, 1, CV_32S); // Etiquetas como enteros
+    Mat responses(filas, 1, CV_32S);
 
-    // Copia de los datos elementos a elementos
     for (int i = 0; i < filas; ++i) {
         for (int j = 0; j < cols; ++j) {
             data.at<float>(i, j) = static_cast<float>(X[i][j]);
@@ -188,21 +190,66 @@ Ptr<ml::RTrees> Clasificador::EntrenarRandomForest(const vector<vector<double>>&
         responses.at<int>(i, 0) = static_cast<int>(Y[i]);
     }
 
-    // Configurar el modelo Random Forest
     auto modelo = ml::RTrees::create();
 
-    // Configuracion de los parametros del modelo
-    modelo->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER, 100, 0.1)); // Max de iteraciones 100, umbral de convergencia 0.1
+    // --- MEJORAS DE PARÁMETROS ---
 
-    // 'Learners', 'Tree' (Configuración de los arboles individuales)
-    modelo->setMaxDepth(10);           // Profundidad maxima
-    modelo->setMinSampleCount(2);      // Muestras minimas para dividir
-    modelo->setRegressionAccuracy(0);
+    // 1. Más árboles (500) para mayor estabilidad
+    modelo->setTermCriteria(TermCriteria(TermCriteria::MAX_ITER + TermCriteria::EPS, 500, 0.01));
+
+    // 2. Mayor profundidad para que llegue a evaluar la geometría después del color
+    modelo->setMaxDepth(20);
+
+    // 3. Permitir divisiones más finas
+    modelo->setMinSampleCount(2);
+
+    // 4. Importancia de variables activa para diagnóstico
     modelo->setCalculateVarImportance(true);
 
-    // Entrenar
+    // 5. Ajuste de categorías (si tus IDs de clase no son correlativos)
+    // Mat var_type(cols + 1, 1, CV_8U, ml::VAR_NUMERICAL);
+    // var_type.at<uchar>(cols, 0) = ml::VAR_CATEGORICAL; 
+
     modelo->train(data, ml::ROW_SAMPLE, responses);
 
-    // Retorno
     return modelo;
+}
+
+double Clasificador::CalcularLossCV(const vector<vector<double>>& X, const vector<double>& G, const KFoldPartition& cv) {
+    double totalError = 0;
+    int totalMuestrasTest = 0;
+
+    // Iteramos sobre cada Fold (K=5)
+    for (int k = 0; k < cv.testIndices.size(); ++k) {
+        vector<vector<double>> xTrain, xTest;
+        vector<double> gTrain, gTest;
+
+        // Construir conjuntos de entrenamiento y test para este Fold
+        for (int idx : cv.trainIndices[k]) {
+            xTrain.push_back(X[idx]);
+            gTrain.push_back(G[idx]);
+        }
+        for (int idx : cv.testIndices[k]) {
+            xTest.push_back(X[idx]);
+            gTest.push_back(G[idx]);
+        }
+
+        // Entrenar modelo temporal con el set de entrenamiento del Fold
+        Ptr<ml::RTrees> modeloTemporal = EntrenarRandomForest(xTrain, gTrain);
+
+        // Probar el modelo con el set de test (el que se quedó fuera)
+        for (size_t i = 0; i < xTest.size(); ++i) {
+            Mat sample(1, xTest[i].size(), CV_32F);
+            for (size_t j = 0; j < xTest[i].size(); ++j)
+                sample.at<float>(0, j) = static_cast<float>(xTest[i][j]);
+
+            float prediccion = modeloTemporal->predict(sample);
+            if (std::abs(prediccion - gTest[i]) > 0.01) {
+                totalError++;
+            }
+            totalMuestrasTest++;
+        }
+    }
+
+    return (totalMuestrasTest > 0) ? (totalError / totalMuestrasTest) : 1.0;
 }

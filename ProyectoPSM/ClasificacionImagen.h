@@ -17,13 +17,13 @@ private:
 	vector<double> VectorMu;
 	Ptr<ml::RTrees> ModeloCargado;
 
-	vector<double> ExtraerCaracteristicasImagen(const Mat& ImagenSegmentadaColorTamanoAjustado);
-	vector<double> NormalizarCaracteristicas(const vector<double>& vector);
-	int Prediccion(const vector<double>& caracteristicas_normalizadas);
-
+	vector<double> ExtraerCaracteristicasImagen(const vector<Mat>& ImagenSegmentadaColorTamanoAjustado);
+	vector<vector<double>> NormalizarCaracteristicas(const vector<vector<double>>& vector);
+	vector<int> Prediccion(const vector<vector<double>>& caracteristicas_normalizadas);
+	
 public slots:
-	void Clasificacion(const vector<double>& caracteristicasVector);
+	void Clasificacion(const vector<vector<double>>& caracteristicasVector);
 
 signals:
-	void ResultadoClasificacion(const int id_clase);
+	void ResultadoClasificacion(const vector<int> id_clase);
 };

@@ -99,7 +99,7 @@
    <widget class="QLabel" name="ImagenSegmentada">
     <property name="geometry">
      <rect>
-      <x>190</x>
+      <x>40</x>
       <y>490</y>
       <width>171</width>
       <height>101</height>
@@ -112,50 +112,36 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="codigo">
+   <widget class="QLabel" name="ImagenSegmentada_2">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>540</y>
-      <width>101</width>
-      <height>31</height>
+      <x>240</x>
+      <y>490</y>
+      <width>171</width>
+      <height>101</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>16</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
     <property name="text">
-     <string>00</string>
+     <string/>
     </property>
-    <property name="textFormat">
-     <enum>Qt::TextFormat::MarkdownText</enum>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignmentFlag::AlignCenter</set>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
    </widget>
-   <widget class="QLabel" name="codigodetectado">
+   <widget class="QLabel" name="ImagenSegmentada_3">
     <property name="geometry">
      <rect>
-      <x>380</x>
-      <y>510</y>
-      <width>151</width>
-      <height>31</height>
+      <x>470</x>
+      <y>490</y>
+      <width>171</width>
+      <height>101</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <pointsize>13</pointsize>
-     </font>
-    </property>
     <property name="text">
-     <string>  Código detectado</string>
+     <string/>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignmentFlag::AlignCenter</set>
+    <property name="scaledContents">
+     <bool>true</bool>
     </property>
    </widget>
   </widget>

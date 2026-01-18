@@ -26,4 +26,6 @@ private:
 	ParamsNormalizacion NormalizarDatos(const vector<vector<double>>& X);
 	KFoldPartition CrearCVPartition(int numMuestras, int K);
 	Ptr<ml::RTrees> EntrenarRandomForest(const vector<vector<double>>& X, const vector<double>& Y);
+
+	double CalcularLossCV(const vector<vector<double>>& X, const vector<double>& G, const KFoldPartition& cv);
 };

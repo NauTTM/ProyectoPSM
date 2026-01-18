@@ -33,17 +33,25 @@ public:
 	// Filtrado del objetivo principal (LEGO)
 	Mat FiltrarObjetoLego(const Mat& mask);
 
+	struct ImagenesSegmentadas {
+		vector<Mat> objeto;
+		vector<Mat> imagenesColor;
+		vector<Mat> imagenesBinarias;
+	};
 	// Recorte y normalizacion
-	Mat RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
+	ImagenesSegmentadas RecorteAjusteImagen(const vector<Mat> &hsv_channels, const Mat& BW);
 
 	// Obtencion de bordes
 	vector<vector<Point>> MostrarBordes(const Mat& bw);
 
+	void SegmentarTodasImagenes();
+
+	
 // Punto de entrada del hilo
 public slots:
 	void SegmentarImagen(const Mat& Imagen);
 
 // Salidad del proceso de segmentacion
 signals:
-	void SegmentacionCompletada(const Mat& Imagen, const vector<vector<Point>>& Bordes);
+	void SegmentacionCompletada(const vector<Mat>& Imagen, const vector<vector<Point>>& Bordes, const vector<Mat> ImagenesSegmentadasBinarias, const vector<Mat> ImagenesBinariasAColor);
 };

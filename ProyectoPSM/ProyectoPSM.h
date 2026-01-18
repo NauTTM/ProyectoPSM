@@ -12,6 +12,7 @@
 #include <ExtraccionCaracteristicas.h>
 #include <Clasificador.h>
 #include <ClasificacionImagen.h>
+#include <Orientacion.h>
 
 using namespace cv;
 using namespace Qt;
@@ -47,8 +48,8 @@ private:
     QString generarNombreArchivo();
     Mat frameActual;
     bool Recording;
-    void MostrarImagenSegmentada(const Mat& img1, const vector<vector<Point>>& Bordes);
-    void MostrarClase(const int tipoClase);
+    void MostrarImagenSegmentada(const vector<Mat>& img1, const vector<vector<Point>>& Bordes);
+    void MostrarClase(const vector<int> tipoClase, vector<int> orientacion);
     static QImage matToQImage(const Mat& mat);
 	Segmentacion *segmentacion;
     QThread *threadSegmentacion;
@@ -60,6 +61,15 @@ private:
 
 	ClasificacionImagen* clasificacionImagen;
     QThread *clasificadorThread;
+
+    vector<int> TiposClase;
+    bool MostrarTexto;
+
+	Clasificador* clasificadorModelo;
+
+    Orientacion* orientacion;
+	QThread* orientacionThread;
+    vector<int> OrientacionActual;
 };
 
 #endif // PROYECTOPSM_H

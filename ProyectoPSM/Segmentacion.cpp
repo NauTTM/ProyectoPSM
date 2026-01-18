@@ -5,10 +5,44 @@ Segmentacion::Segmentacion() {
 
 Segmentacion::~Segmentacion() {
 }
+ /*void Segmentacion::SegmentarTodasImagenes() {
+	vector<vector<double>> X;
+	vector<double> G;
+	QDir directory("imagenes/");
+
+	QStringList filters;
+	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
+	QStringList files = directory.entryList(filters, QDir::Files);
+
+    QDir outDir(directory.absolutePath());
+    if (!outDir.exists("imagenesSegmentadasSinResize")) {
+        outDir.mkdir("imagenesSegmentadasSinResize");
+    }
+	for (int i = 0; i < files.size(); ++i) {
+		QString fileName = files[i];
+		int numero = fileName.section('_', 0, 0).toInt();
+
+		Mat I = imread(directory.absoluteFilePath(fileName).toStdString());
+		
+		Mat imagenSegmentadaRecortada = SegmentarImagen(I);
+	
+        QFileInfo info(fileName);
+        QString baseName = info.completeBaseName(); 
+        QString extension = info.suffix();          
+
+        QString newFileName = baseName + "_bw." + extension;
+
+        QString outputPath = outDir.absoluteFilePath("imagenesSegmentadasSinResize/" + newFileName);
+
+        imwrite(outputPath.toStdString(), imagenSegmentadaRecortada);
+	}
+
+}*/
 
 // Funcion SegmentarImagen que se ejecuta en un hilo independiente
-void Segmentacion::SegmentarImagen(const Mat& Imagen) {
+ void Segmentacion::SegmentarImagen(const Mat& Imagen) {
         // Variables auxiliares
+    //Mat im = imread("capturas/captura_20260107_183433.jpg");
         Mat sat, img1, img8bit;
 		vector<vector<Point>> img2;
 
@@ -28,13 +62,13 @@ void Segmentacion::SegmentarImagen(const Mat& Imagen) {
         Mat bw = FiltrarObjetoLego(mask);
 
         // Recorte y normalizacion del objeto
-        Mat objeto = RecorteAjusteImagen(corr, bw);
-        img1 = objeto;  
+        ImagenesSegmentadas imagenes = RecorteAjusteImagen(corr, bw);
+        //img1 = objeto; 
         img2 = MostrarBordes(bw); // Obtencion de contornos
-
+        
         // Emision del resultado
-        if(!img1.empty())
-           emit SegmentacionCompletada(img1, img2);
+        if(!imagenes.objeto.empty())
+           emit SegmentacionCompletada(imagenes.objeto, img2, imagenes.imagenesBinarias, imagenes.imagenesColor);
        
 }
 
@@ -218,10 +252,10 @@ Mat Segmentacion::FiltrarObjetoLego(const Mat& mask) {
 }
 
 // Funcion recorte y ajuste de imagen
-Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Mat& BW) {
+Segmentacion::ImagenesSegmentadas  Segmentacion::RecorteAjusteImagen(const vector<Mat>& hsv_channels, const  Mat& BW) {
 
     // Parametros de normalizacion
-    Mat I_norm;
+    vector<Mat> resultado, resultadoBinario, resultadoColorSinResize;
     Size tam_final(200, 200); // Tamano final comun para todos los objetos
     int extra = 20;
     
@@ -242,21 +276,10 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
     // Localizacion de todos los objetos segmentados
     vector<vector<Point>> contours;
     findContours(bw_8u, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-    // Seleccion del objeto dominante
-    int idxMax = -1;
-    double areaMax = 0;
 
-    for (size_t i = 0; i < contours.size(); i++) {
-        double area = contourArea(contours[i]);
-        if (area > areaMax) {
-            areaMax = area;
-            idxMax = i;
-        }
-    }
-
-    if (contours.size() == 0) return I_norm;
+    for (size_t k = 0; k < contours.size(); k++) {
         // 1. Obtener BoundingBox (bb)
-        Rect bb = boundingRect(contours[idxMax]);
+        Rect bb = boundingRect(contours[k]);
 
         // 2. Aplicar el "extra" (Padding) con límites de imagen
         int x = max(0, bb.x - extra);
@@ -266,25 +289,24 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
 
         Rect roi(x, y, w, h);
 
-        // 3. Crear mascara local para este objeto especifico
+        // 3. Crear mascara local para este objeto específico
         Mat mask_local = Mat::zeros(bw_8u.size(), CV_8UC1);
-        drawContours(mask_local, contours, static_cast<int>(idxMax), Scalar(255), -1);
+        drawContours(mask_local, contours, static_cast<int>(k), Scalar(255), -1);
 
         // 4. Recortar (imcrop)
         Mat mask_crop = mask_local(roi).clone();
         Mat I_crop = I_original(roi).clone();
 
-        // 5. Limpieza morfologica local
+        // 5. Limpieza morfológica local
         morphologyEx(mask_crop, mask_crop, MORPH_OPEN, SE);
         morphologyEx(mask_crop, mask_crop, MORPH_CLOSE, SE);
 
-        // 6. Aplicar mascara a la imagen (I_crop_masked)
+        // 6. Aplicar máscara a la imagen (I_crop_masked)
         // Como I_original es double [0,1], mask_crop debe convertirse a ese tipo
         Mat mask_float;
         mask_crop.convertTo(mask_float, I_original.type(), 1.0 / 255.0);
 
         Mat I_crop_masked;
-
         // Multiplicación canal por canal
         vector<Mat> channels;
         split(I_crop, channels);
@@ -294,11 +316,19 @@ Mat Segmentacion::RecorteAjusteImagen(const vector<Mat> &hsv_channels, const  Ma
         merge(channels, I_crop_masked);
 
         // 7. Redimensionar (imresize)
+        Mat I_norm, BW_norm;
         resize(I_crop_masked, I_norm, tam_final);
-    
-    // Retorno
-    return I_norm;
+        // 'nearest' para la máscara binaria para no crear grises en los bordes
+        resize(mask_crop, BW_norm, tam_final, 0, 0, INTER_NEAREST);
+
+        resultado.push_back(I_norm);
+		resultadoColorSinResize.push_back(I_crop_masked);
+		resultadoBinario.push_back(mask_crop);
+    }
+
+    return {resultado, resultadoColorSinResize, resultadoBinario};
 }
+
 
 // Funcion mostrar bordes
 vector<vector<Point>> Segmentacion::MostrarBordes(const Mat& bw) {
