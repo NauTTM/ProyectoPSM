@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>ProyectoPSM</class>
  <widget class="QMainWindow" name="ProyectoPSM">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,107 +17,143 @@
    <string>ProyectoPSM</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="2" column="2">
-     <widget class="QLabel" name="ImagenSegmentada_3">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLabel" name="ImagenSegmentada_2">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="ImagenSegmentada">
-      <property name="text">
-       <string/>
-      </property>
-      <property name="scaledContents">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" colspan="3">
-     <widget class="QWidget" name="widget" native="true">
-      <widget class="QLabel" name="capturarImagen">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>720</width>
-         <height>405</height>
-        </rect>
+   <widget class="QWidget" name="widget" native="true">
+    <property name="geometry">
+     <rect>
+      <x>9</x>
+      <y>9</y>
+      <width>726</width>
+      <height>371</height>
+     </rect>
+    </property>
+    <widget class="QLabel" name="capturarImagen">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>720</width>
+       <height>405</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>230</x>
+      <y>410</y>
+      <width>261</width>
+      <height>64</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Calibri</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="btnCapture">
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>12</pointsize>
+        </font>
        </property>
        <property name="text">
-        <string/>
-       </property>
-       <property name="scaledContents">
-        <bool>true</bool>
+        <string>Capturar</string>
        </property>
       </widget>
-     </widget>
-    </item>
-    <item row="3" column="0">
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
-       <widget class="QPushButton" name="btnCapture">
-        <property name="font">
-         <font>
-          <family>Calibri</family>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Capturar</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QPushButton" name="btnStart">
-        <property name="font">
-         <font>
-          <family>Calibri</family>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string> Iniciar</string>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>12</width>
-          <height>12</height>
-         </size>
-        </property>
-        <property name="checkable">
-         <bool>false</bool>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="btnStart">
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string> Iniciar</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>12</width>
+         <height>12</height>
+        </size>
+       </property>
+       <property name="checkable">
+        <bool>false</bool>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="ImagenSegmentada">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>490</y>
+      <width>171</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ImagenSegmentada_2">
+    <property name="geometry">
+     <rect>
+      <x>240</x>
+      <y>490</y>
+      <width>171</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ImagenSegmentada_3">
+    <property name="geometry">
+     <rect>
+      <x>470</x>
+      <y>490</y>
+      <width>171</width>
+      <height>101</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1291</width>
+     <width>744</width>
      <height>21</height>
     </rect>
    </property>
