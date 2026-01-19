@@ -147,7 +147,7 @@ void ProyectoPSM::actualizarFrame()
     QImage imagen = matToQImage(frameMostrar);
     ui->capturarImagen->setPixmap(QPixmap::fromImage(imagen).scaled(
         ui->capturarImagen->size(), KeepAspectRatio, SmoothTransformation));
-	if (ContadorFrames % 60 == 0 || ContadorFrames == 1)
+	if (ContadorFrames % 60 == 0 || ContadorFrames == 1) // BAJAR ESTO !!!!!!
 	    emit enviarFrame(frameActual);
     frameMostrar.release();
 }
@@ -196,12 +196,19 @@ QImage ProyectoPSM::matToQImage(const Mat& mat)
 // Visualizacion de la imagen segmentada
 void ProyectoPSM::MostrarImagenSegmentada(const vector<Mat>& img1, const vector<vector<Point>>& Bordes)
 {    
-    if(Bordes.size() > 0) 
+        // Actualizar los bordes siempre
         BordesActuales = Bordes;
 
-        QImage imagen = matToQImage(img1[0]);
-        ui->ImagenSegmentada->setPixmap(QPixmap::fromImage(imagen).scaled(
-            ui->ImagenSegmentada->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        // Limpieza de imagenes al inicio 
+        ui->ImagenSegmentada->clear();
+        ui->ImagenSegmentada_2->clear();
+        ui->ImagenSegmentada_3->clear();
+
+        if (img1.size() > 0){
+            QImage imagen = matToQImage(img1[0]);
+            ui->ImagenSegmentada->setPixmap(QPixmap::fromImage(imagen).scaled(
+                ui->ImagenSegmentada->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+        }
         if (img1.size() > 1) {
             QImage imagen = matToQImage(img1[1]);
             ui->ImagenSegmentada_2->setPixmap(QPixmap::fromImage(imagen).scaled(
