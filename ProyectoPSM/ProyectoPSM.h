@@ -48,7 +48,6 @@ private:
     QThread* camaraThread;
 	void IniciarDetenerGrabacionPestanaClasificacion();
 	void ActualizarFramePestanaClasificacion();
-    QTimer* temporizador;
     QString generarNombreArchivoPestanaClasificacion();
     Mat frameActual;
     Mat frameActualCaptura;
@@ -90,6 +89,8 @@ private:
 	
     Clasificador* clasificadorModelo;
     QThread* clasificadorModeloThread;
+
+    bool segmentadorOcupado = false;
 };
 
 #endif // PROYECTOPSM_H

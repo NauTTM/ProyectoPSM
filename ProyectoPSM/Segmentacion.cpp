@@ -5,44 +5,10 @@ Segmentacion::Segmentacion() {
 
 Segmentacion::~Segmentacion() {
 }
- /*void Segmentacion::SegmentarTodasImagenes() {
-	vector<vector<double>> X;
-	vector<double> G;
-	QDir directory("imagenes/");
-
-	QStringList filters;
-	filters << "*.jpg" << "*.png" << "*.jpeg" << "*.tif";
-	QStringList files = directory.entryList(filters, QDir::Files);
-
-    QDir outDir(directory.absolutePath());
-    if (!outDir.exists("imagenesSegmentadasSinResize")) {
-        outDir.mkdir("imagenesSegmentadasSinResize");
-    }
-	for (int i = 0; i < files.size(); ++i) {
-		QString fileName = files[i];
-		int numero = fileName.section('_', 0, 0).toInt();
-
-		Mat I = imread(directory.absoluteFilePath(fileName).toStdString());
-		
-		Mat imagenSegmentadaRecortada = SegmentarImagen(I);
-	
-        QFileInfo info(fileName);
-        QString baseName = info.completeBaseName(); 
-        QString extension = info.suffix();          
-
-        QString newFileName = baseName + "_bw." + extension;
-
-        QString outputPath = outDir.absoluteFilePath("imagenesSegmentadasSinResize/" + newFileName);
-
-        imwrite(outputPath.toStdString(), imagenSegmentadaRecortada);
-	}
-
-}*/
 
 // Funcion SegmentarImagen que se ejecuta en un hilo independiente
  void Segmentacion::SegmentarImagen(const Mat& Imagen) {
         // Variables auxiliares
-    //Mat im = imread("capturas/captura_20260107_183433.jpg");
         Mat sat, img1, img8bit;
 		vector<vector<Point>> img2;
 
@@ -135,8 +101,13 @@ vector<Mat> Segmentacion::CorreccionIluminacion(const vector<Mat> &hsv_channels)
     //2. Reducir solo para calcular el fondo (1/4 del tamaño)
     resize(V, V_small, Size(), 0.25, 0.25, INTER_LINEAR);
 
+    Mat frameLimpio;
+    // El filtro de mediana es excelente para eliminar el ruido tipo "sal y pimienta" del Gain
+    medianBlur(V_small, frameLimpio, 5);
+
+
     //3. Suavizado fuerte segune estimacion del fondo
-    GaussianBlur(V_small, V_bg_small, Size(0, 0), 50.0); // Filtro gaussiano de sigma alto para eliminar estructuras pequenas
+    GaussianBlur(frameLimpio, V_bg_small, Size(0, 0), 50.0); // Filtro gaussiano de sigma alto para eliminar estructuras pequenas
 
     //4. Regresar al tamaño original
     resize(V_bg_small, V_bg, V.size(), 0, 0, INTER_LINEAR);

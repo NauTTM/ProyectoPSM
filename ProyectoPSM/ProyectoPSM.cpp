@@ -7,7 +7,6 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
     ui->setupUi(this);
 
     // Inicializamos los parametros del sistema y creacion de hilos
-    temporizador = new QTimer(this);
     camaraThread = new QThread(this);
 
     // Creamos tres hilos cada uno para diferentes partes
@@ -18,9 +17,6 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 
     // Arrancamos los hilos
     camaraThread->start();
-
-    camara->SetCameraExposure(33000);
-    camara->SetAutoGain();
 
     PrepararPestanaCapturaImagen();
     PrepararPestanaEntrenamiento();
@@ -43,7 +39,6 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 ProyectoPSM::~ProyectoPSM()
 {
     camara->~CVideoAcquisition();
-    temporizador->stop();
     threadSegmentacion->deleteLater();
 	extraccionThread->deleteLater();
 	clasificadorThread->deleteLater();
@@ -199,14 +194,14 @@ void ProyectoPSM::IniciarDetenerGrabacionPestanaClasificacion() {
         ui->btnIniciarParar->setStyleSheet("background-color: #E05334");
         ui->btnIniciarParar->setText("Parar");
         camara->StartStopCapture(true);
-        //temporizador->start(10);
+        camara->SetCameraExposure(250000);
+        camara->SetAutoGain();
         Recording = true;
     }
     else {
         ui->btnIniciarParar->setStyleSheet("background-color: white");
         ui->btnIniciarParar->setText("Iniciar");
         camara->StartStopCapture(false);
-        //temporizador->stop();
         Recording = false;
         ContadorFrames = 0;
     }
@@ -243,7 +238,7 @@ void ProyectoPSM::ActualizarFramePestanaClasificacion() {
                 PuntoFinal = puntoFinal;
 
                 // --- 3. DIBUJO DE LA FLECHA ---
-                arrowedLine(frameMostrar, Centroide, PuntoFinal, Scalar(255, 255, 0), 3, 8, 0, 0.3);
+                arrowedLine(frameMostrar, Centroide, PuntoFinal, Scalar(255, 0, 255), 3, 8, 0, 0.3);
                 QString textoClase = QString("%1").arg(TiposClase[i], 2, 10, QChar('0'));
                 QString orientacionTexto = QString::number(OrientacionActual[i]);
 
@@ -274,11 +269,11 @@ void ProyectoPSM::ActualizarFramePestanaClasificacion() {
 
                 // 4. Ajustar Y (Evitar que se salga por arriba)
                 // Intentamos ponerlo arriba del objeto, pero si no hay espacio (altoTotal + margen), lo ponemos debajo
-                int yBase = rect.y - 10;
+                int yBase = rect.y - 20;
 
                 if (yBase - altoTotal < 0) {
                     // No cabe arriba, lo ponemos debajo del objeto
-                    yBase = rect.y + rect.height + tamClase.height + 10;
+                    yBase = rect.y + rect.height + tamClase.height + 40;
                 }
 
                 // 5. Dibujar (Orientación debajo de Clase)
@@ -300,8 +295,10 @@ void ProyectoPSM::ActualizarFramePestanaClasificacion() {
     QImage imagen = matToQImage(frameMostrar);
     frameMostrar.release();
     ui->ImagenCapturaClasificacion->setPixmap(QPixmap::fromImage(imagen));
-    if (ContadorFrames % 15 == 0 || ContadorFrames == 1)
+    if (!segmentadorOcupado && ContadorFrames % 15 == 0 || ContadorFrames == 1) {
+        segmentadorOcupado = true;
         emit enviarFrame(frameActual);
+    }
 
 }
 
@@ -319,7 +316,7 @@ QString ProyectoPSM::generarNombreArchivoPestanaClasificacion()
 void ProyectoPSM::MostrarImagenSegmentada(const vector<Mat>& img1, const vector<vector<Point>>& Bordes)
 {
     vector<vector<Point>> bordesFiltrados;
-    double areaMinima = 1300.0; 
+    double areaMinima = 2000.0; 
 
     for (const auto& contorno : Bordes) {
         if (contourArea(contorno) > areaMinima) {
@@ -347,6 +344,7 @@ void ProyectoPSM::MostrarImagenSegmentada(const vector<Mat>& img1, const vector<
         QImage imagen = matToQImage(img1[2]);
         ui->ImagenSegmentada3->setPixmap(QPixmap::fromImage(imagen));
     }
+    segmentadorOcupado = false;
 
 }
 
@@ -380,8 +378,8 @@ void ProyectoPSM::InicializarCombos()
     QStringList codigos = { "01","02","03", "04", "05", "06", "07", "08", "09", "10", "11", "12" };
     ui->comboCodigo->addItems(codigos);
 
-    QStringList azimuth = { "000","045","090","135","180","225","270","315" };
-    ui->comboAzimuth->addItems(azimuth);
+    QStringList orientacion = { "000","045","090","135","180","225","270","315" };
+    ui->comboAzimuth->addItems(orientacion);
 
     QStringList elevacion = { "000","030","060","090" };
     ui->comboElev->addItems(elevacion);
@@ -400,17 +398,15 @@ void ProyectoPSM::IniciarDetenerGrabacionPestanaCaptura()
     if (!RecordingCaptura) {
         ui->btnIniciarParar_2->setStyleSheet("background-color: #E05334");
         ui->btnIniciarParar_2->setText("Parar");
-        camara->SetCameraExposure(33000);
-		camara->SetAutoGain();
         camara->StartStopCapture(true);
-        //temporizador->start(0);
+        camara->SetCameraExposure(50000);
+        camara->SetAutoGain();
         RecordingCaptura = true;
     }
     else {
         ui->btnIniciarParar_2->setStyleSheet("background-color: white");
         ui->btnIniciarParar_2->setText("Iniciar");
         camara->StartStopCapture(false);
-        //temporizador->stop();
         RecordingCaptura = false;
     }
 }
