@@ -42,8 +42,7 @@ ProyectoPSM::ProyectoPSM(QWidget* parent)
 
 ProyectoPSM::~ProyectoPSM()
 {
-    camaraThread->quit();
-    camaraThread->wait();
+    camara->~CVideoAcquisition();
     temporizador->stop();
     threadSegmentacion->deleteLater();
 	extraccionThread->deleteLater();
