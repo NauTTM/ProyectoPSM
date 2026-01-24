@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1291</width>
+    <width>1494</width>
     <height>920</height>
    </rect>
   </property>
@@ -20,143 +20,445 @@
    <widget class="QWidget" name="widget" native="true">
     <property name="geometry">
      <rect>
-      <x>9</x>
-      <y>9</y>
-      <width>726</width>
-      <height>371</height>
+      <x>0</x>
+      <y>0</y>
+      <width>1491</width>
+      <height>881</height>
      </rect>
     </property>
-    <widget class="QLabel" name="capturarImagen">
+    <widget class="QTabWidget" name="opciones">
      <property name="geometry">
       <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>720</width>
-       <height>405</height>
+       <x>30</x>
+       <y>20</y>
+       <width>1948</width>
+       <height>1136</height>
       </rect>
      </property>
-     <property name="text">
-      <string/>
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <property name="scaledContents">
-      <bool>true</bool>
-     </property>
+     <widget class="QWidget" name="Clasificacion">
+      <attribute name="title">
+       <string>Clasificación</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>570</x>
+         <y>400</y>
+         <width>261</width>
+         <height>64</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <layout class="QGridLayout" name="botonesClasificador">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="btnCapturar">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Capturar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="btnIniciarParar">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string> Iniciar</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>12</width>
+            <height>12</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="ImagenCapturaClasificacion">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>30</y>
+         <width>701</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>510</y>
+         <width>701</width>
+         <height>141</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="ImagenesSegmetadas">
+        <item>
+         <widget class="QLabel" name="ImagenSegmentada1">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(0, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="ImagenSegmentada2">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(0, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="ImagenSegmentada3">
+          <property name="styleSheet">
+           <string notr="true">background-color: rgb(0, 0, 0);</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="CapturaImagen">
+      <attribute name="title">
+       <string>Captura de imagen</string>
+      </attribute>
+      <widget class="QWidget" name="layoutWidget_5">
+       <property name="geometry">
+        <rect>
+         <x>360</x>
+         <y>480</y>
+         <width>671</width>
+         <height>71</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <layout class="QGridLayout" name="gridSelectores">
+        <item row="2" column="1">
+         <widget class="QComboBox" name="comboAzimuth">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="maxVisibleItems">
+           <number>7</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="3">
+         <widget class="QComboBox" name="comboSeq">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="maxVisibleItems">
+           <number>7</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QComboBox" name="comboCodigo">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="maxVisibleItems">
+           <number>7</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLabel" name="label_6">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(0, 0, 127);</string>
+          </property>
+          <property name="text">
+           <string>Elevación</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QLabel" name="label_7">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(0, 0, 127);</string>
+          </property>
+          <property name="text">
+           <string>Orientación</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="comboElev">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="maxVisibleItems">
+           <number>7</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_8">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(0, 0, 127);</string>
+          </property>
+          <property name="text">
+           <string>Código</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_5">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: rgb(0, 0, 127);</string>
+          </property>
+          <property name="text">
+           <string>Secuencia</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignmentFlag::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="ImagenCapturaBDD">
+       <property name="geometry">
+        <rect>
+         <x>350</x>
+         <y>30</y>
+         <width>701</width>
+         <height>341</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(0, 0, 0);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_4">
+       <property name="geometry">
+        <rect>
+         <x>570</x>
+         <y>400</y>
+         <width>261</width>
+         <height>64</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Calibri</family>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <layout class="QGridLayout" name="botonesCaptura">
+        <item row="0" column="1">
+         <widget class="QPushButton" name="btnCapturar_2">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>Capturar</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <widget class="QPushButton" name="btnIniciarParar_2">
+          <property name="font">
+           <font>
+            <family>Calibri</family>
+            <pointsize>12</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string> Iniciar</string>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>12</width>
+            <height>12</height>
+           </size>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="Entrenamiento">
+      <attribute name="title">
+       <string>Entrenamiento</string>
+      </attribute>
+      <widget class="QProgressBar" name="progressBar">
+       <property name="geometry">
+        <rect>
+         <x>430</x>
+         <y>170</y>
+         <width>181</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="value">
+        <number>24</number>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="EntrenarClasificador">
+       <property name="geometry">
+        <rect>
+         <x>190</x>
+         <y>170</y>
+         <width>191</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 85, 127);</string>
+       </property>
+       <property name="text">
+        <string>Entrenar clasificador</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="precisionLbl">
+       <property name="geometry">
+        <rect>
+         <x>640</x>
+         <y>170</y>
+         <width>191</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Verdana</family>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignmentFlag::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>230</x>
-      <y>410</y>
-      <width>261</width>
-      <height>64</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Calibri</family>
-      <pointsize>12</pointsize>
-     </font>
-    </property>
-    <layout class="QGridLayout" name="gridLayout_2">
-     <item row="0" column="1">
-      <widget class="QPushButton" name="btnCapture">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Capturar</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="btnStart">
-       <property name="font">
-        <font>
-         <family>Calibri</family>
-         <pointsize>12</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string> Iniciar</string>
-       </property>
-       <property name="iconSize">
-        <size>
-         <width>12</width>
-         <height>12</height>
-        </size>
-       </property>
-       <property name="checkable">
-        <bool>false</bool>
-       </property>
-       <property name="autoDefault">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QLabel" name="ImagenSegmentada">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>490</y>
-      <width>171</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ImagenSegmentada_2">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>490</y>
-      <width>171</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ImagenSegmentada_3">
-    <property name="geometry">
-     <rect>
-      <x>470</x>
-      <y>490</y>
-      <width>171</width>
-      <height>101</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="scaledContents">
-     <bool>true</bool>
-    </property>
-   </widget>
-  </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>744</width>
-     <height>21</height>
-    </rect>
-   </property>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -169,8 +471,6 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="ProyectoPSM.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

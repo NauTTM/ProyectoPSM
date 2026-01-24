@@ -28,4 +28,8 @@ private:
 	Ptr<ml::RTrees> EntrenarRandomForest(const vector<vector<double>>& X, const vector<double>& Y);
 
 	double CalcularLossCV(const vector<vector<double>>& X, const vector<double>& G, const KFoldPartition& cv);
+
+signals:
+	void ProgresoActualizado(int porcentaje);
+	void EntrenamientoFinalizado(double precision);
 };

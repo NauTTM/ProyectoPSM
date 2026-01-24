@@ -2,10 +2,10 @@
 
 // Constructor
 ClasificacionImagen::ClasificacionImagen() {
-	ModeloCargado = ml::RTrees::load("datos/PropsRGBHS17/clasificador_RF.xml"); // Carg del modelo Random Forest entrenador
+	ModeloCargado = ml::RTrees::load("datos/clasificador_RF.xml"); // Carg del modelo Random Forest entrenador
 	
 	// Cargar de los parametros de normalizacion (mu y sigma)
-	FileStorage fs("datos/PropsRGBHS17/parametros_norm.xml", FileStorage::READ);
+	FileStorage fs("datos/parametros_norm.xml", FileStorage::READ);
 	Mat muMat, sigmaMat;
 	fs["mu"] >> muMat;
 	fs["sigma"] >> sigmaMat;

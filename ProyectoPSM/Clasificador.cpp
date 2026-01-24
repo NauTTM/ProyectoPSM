@@ -5,10 +5,12 @@ Clasificador::Clasificador() {
 
 // Clasificador del sistema
 void Clasificador::Clasificador_RF() {
+    emit ProgresoActualizado(5);
 
 	// Cargar los datos para el entrenamiento
-    vector<vector<double>> X = CargarObservacionesCSV("datos/PropsRGBHS17/X.csv");
-    vector<double> G = CargarEtiquetasCSV("datos/PropsRGBHS17/G.csv");
+    vector<vector<double>> X = CargarObservacionesCSV("datos/X.csv");
+    vector<double> G = CargarEtiquetasCSV("datos/G.csv");
+    emit ProgresoActualizado(15);
 
     // Normalizacion de las caracteristicas (X)
 	ParamsNormalizacion paramsNorm = NormalizarDatos(X);
@@ -19,17 +21,21 @@ void Clasificador::Clasificador_RF() {
 
     // 2. CÁLCULO DE ACCURACY (Equivalente a accuracy = 1 - kfoldLoss)
     double accuracy = 1.0 - loss;
-    qDebug() << "Accuracy por Validacion Cruzada:" << accuracy;
+
+    emit ProgresoActualizado(90);
 
 	// Entrenamiento del clasificador tipo: Random Forest
 	Ptr<ml::RTrees> modeloRF = EntrenarRandomForest(paramsNorm.Xn, G);
 
 	// Guardar el modelo entrenado
-    modeloRF->save("datos/PropsRGBHS17/clasificador_RF.xml");
-    FileStorage fs("datos/PropsRGBHS17/parametros_norm.xml", FileStorage::WRITE);
+    modeloRF->save("datos/clasificador_RF.xml");
+    FileStorage fs("datos/parametros_norm.xml", FileStorage::WRITE);
     fs << "mu" << Mat(paramsNorm.mu).t();       // Guardamos mu como fila
     fs << "sigma" << Mat(paramsNorm.sigma).t(); // Guardamos sigma como fila
     fs.release();
+
+    emit ProgresoActualizado(100);
+    emit EntrenamientoFinalizado(accuracy); // Enviamos el resultado final
 }
 
 // Funcion cargar observaciones
@@ -249,6 +255,8 @@ double Clasificador::CalcularLossCV(const vector<vector<double>>& X, const vecto
             }
             totalMuestrasTest++;
         }
+        int progreso = 15 + ((static_cast<unsigned long long>(k) + 1) * 70 / cv.testIndices.size());
+        emit ProgresoActualizado(progreso);
     }
 
     return (totalMuestrasTest > 0) ? (totalError / totalMuestrasTest) : 1.0;

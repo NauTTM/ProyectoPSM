@@ -1,7 +1,7 @@
 #include "Orientacion.h"
 
 Orientacion::Orientacion() {
-	BaseDatos = CargarReferenciasCSV("datos/PropsRGBHS17/Orientacion.csv");
+	BaseDatos = CargarReferenciasCSV("datos/Orientacion.csv");
 }
 
 void Orientacion::GuardarImagenesSegmentadas(const vector<Mat>& Imagen, const vector<vector<Point>>& Bordes, const vector<Mat> ImagenesSegmentadasBinarias, const vector<Mat> ImagenesBinariasAColor){
@@ -31,7 +31,6 @@ vector<Orientacion::ModeloReferencia> Orientacion::CargarReferenciasCSV(string p
         return lista;
     }
 
-    // Saltar la cabecera si la pusiste (id_clase, elevacion, signatura)
     getline(file, line);
 
     while (getline(file, line)) {

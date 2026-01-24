@@ -68,8 +68,13 @@ void CVideoAcquisition::run(void)
 	//mientras la cámara esté grabando
 	while (Recording)
 	{		
+		try{
 		//cuando la imagen esté disponible		
 		Camera->RetrieveResult(5000, PtrGrabResult, TimeoutHandling_ThrowException);
+		}
+		catch (const GenericException& e) {
+			cerr << "Error de Pylon: " << e.GetDescription() << endl;
+		}
 		if (PtrGrabResult->GrabSucceeded())
 		{		
 			//capturar la imagen			
@@ -103,5 +108,10 @@ void CVideoAcquisition::SetCameraExposure(double exposure)
 	//valor de fábrica: 350000,0
 	Camera->ExposureAuto.SetValue(ExposureAuto_Off);
 	Camera->ExposureTimeAbs.SetValue(exposure);
+}
+
+void CVideoAcquisition::SetAutoGain()
+{
+	Camera->GainAuto.SetValue(GainAuto_Once);
 }
 

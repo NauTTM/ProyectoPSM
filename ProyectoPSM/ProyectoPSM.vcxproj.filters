@@ -55,6 +55,9 @@
     <ClCompile Include="Orientacion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CapturaBDD.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="VideoAcquisition.h">
@@ -76,6 +79,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Orientacion.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="CapturaBDD.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -39,6 +39,7 @@ public:
 	Mat GetImage(); //función que devuelve la última imagen
 	void SetCameraAutoExposure(); //función para poner en automatico el tiempo de exposición
 	void SetCameraExposure(double exposure); //función para cambiar el tiempo de exposición
+	void SetAutoGain();
 	
 signals:	
 	//señal que se produce cada vez que hay una nueva imagen disponible

@@ -33,8 +33,9 @@ public:
 // Definicion de metodos 
 private slots:
     void iniciarDetenerGrabacion();
-    void actualizarFrame();
+    void actualizarFrame(const Mat& nuevaImagen);
     void capturarImagen();
+    void MostrarResultadoEntrenamiento(double precision);;
 
 // Senal
 signals:
@@ -43,16 +44,21 @@ signals:
 // Atributos principales
 private:
     Ui::ProyectoPSM* ui;
-    CVideoAcquisition camara;
+    CVideoAcquisition* camara;
+    QThread* camaraThread;
+	void IniciarDetenerGrabacionPestanaClasificacion();
+	void ActualizarFramePestanaClasificacion();
     QTimer* temporizador;
-    QString generarNombreArchivo();
+    QString generarNombreArchivoPestanaClasificacion();
     Mat frameActual;
+    Mat frameActualCaptura;
     bool Recording;
     void MostrarImagenSegmentada(const vector<Mat>& img1, const vector<vector<Point>>& Bordes);
     void MostrarClase(const vector<int> tipoClase, vector<int> orientacion);
     static QImage matToQImage(const Mat& mat);
 	Segmentacion *segmentacion;
     QThread *threadSegmentacion;
+
 	int ContadorFrames; // Variable auxilar para control de frames
 	vector<vector<Point>> BordesActuales;
 	
@@ -65,11 +71,25 @@ private:
     vector<int> TiposClase;
     bool MostrarTexto;
 
-	Clasificador* clasificadorModelo;
-
     Orientacion* orientacion;
 	QThread* orientacionThread;
     vector<int> OrientacionActual;
+
+	void PrepararPestanaClasificacion();
+
+	void PrepararPestanaCapturaImagen();
+    void InicializarCombos();
+	void IniciarDetenerGrabacionPestanaCaptura();
+	void ActualizarFramePestanaCaptura();
+    QString generarNombreArchivoCaptura();
+    bool RecordingCaptura;
+
+    Point Centroide, PuntoFinal;
+
+	void PrepararPestanaEntrenamiento();
+	
+    Clasificador* clasificadorModelo;
+    QThread* clasificadorModeloThread;
 };
 
 #endif // PROYECTOPSM_H
